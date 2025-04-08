@@ -23,6 +23,6 @@ print(recs_df.head())
 
 
 
-recs = generate_recommendations(parking_spots, past_recs, car_models)
+recs = generate_recommendations(parking_spots, past_recs, car_models, dealerships)
 save_recommendations_to_db(recs, car_models)
 

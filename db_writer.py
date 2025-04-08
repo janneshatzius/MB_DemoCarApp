@@ -66,4 +66,4 @@ def save_recommendations_to_db(recommendations, car_model_df):
     conn.commit()
     conn.close()
 
-    print(f"✅ {inserted} inserted | 🔁 {updated} updated | 📦 {inserted + updated} total processed.")
+    print(f"{inserted} inserted | {updated} updated | {inserted + updated} total processed.")
