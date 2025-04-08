@@ -30,7 +30,7 @@ def generate_recommendations(parking_df, past_recs_df, car_model_df, dealership_
         .apply(set)
         .to_dict()
     )
-    print("🧪 Dealership DF columns:", dealership_df.columns.tolist())
+    
 
     # Dealership -> Group map
     dealership_group_map = dict(zip(dealership_df['dealership_id'], dealership_df['dealership_group']))
