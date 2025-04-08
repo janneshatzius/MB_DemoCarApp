@@ -31,4 +31,5 @@ def load_all_data():
 
 
     conn.close()
-    return dealership_df, parking_df, past_recs_df, car_model_df
+    return dealership_df, parking_df, past_recs_df, car_model_df, car_type_df
+

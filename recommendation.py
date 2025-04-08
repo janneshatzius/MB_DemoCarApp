@@ -8,6 +8,7 @@ def generate_recommendations(parking_df, past_recs_df, car_model_df, dealership_
     # Normalize car type names
     car_model_df['car_type'] = car_model_df['car_type'].str.lower()
     parking_df['car_type'] = parking_df['car_type'].str.lower()
+    dealership_df = dealership_df.rename(columns={'gssn_id': 'dealership_id'})
 
     # Create model map by car type
     model_map = (
@@ -29,9 +30,11 @@ def generate_recommendations(parking_df, past_recs_df, car_model_df, dealership_
         .apply(set)
         .to_dict()
     )
+    print("🧪 Dealership DF columns:", dealership_df.columns.tolist())
 
     # Dealership -> Group map
     dealership_group_map = dict(zip(dealership_df['dealership_id'], dealership_df['dealership_group']))
+
 
     # Track models used during this run
     used_by_dealer = {}
