@@ -9,7 +9,7 @@ def test_connection():
         cursor.execute("SELECT TOP 1 * FROM Dealership")
         row = cursor.fetchone()
 
-        print("✅ Connection successful.")
+        print("Connection successful.")
         if row:
             print("Sample data from Dealership:", row)
         else:
@@ -19,7 +19,7 @@ def test_connection():
         return True
 
     except Exception as e:
-        print("❌ Connection failed:", e)
+        print("Connection failed:", e)
         return False
 
 # Run the test
