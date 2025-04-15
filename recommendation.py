@@ -33,7 +33,7 @@ def generate_recommendations(parking_df, past_recs_df, car_model_df, dealership_
     
 
     # Dealership -> Group map
-    dealership_group_map = dict(zip(dealership_df['dealership_id'], dealership_df['dealership_group']))
+    dealership_group_map = dict(zip(dealership_df['dealership_id'], dealership_df['group_id']))
 
 
     # Track models used during this run
@@ -55,20 +55,20 @@ def generate_recommendations(parking_df, past_recs_df, car_model_df, dealership_
 
         available_models = model_map.get(car_type, [])
 
-        # Step 1: exclude history + current dealer + group
+        #exclude history + current dealer + group
         possible_models = [
             m for m in available_models
             if m not in history_used and m not in dealer_used and m not in group_used
         ]
 
-        # Step 2: exclude history + dealer if necessary
+        #exclude history + dealer if necessary
         if not possible_models:
             possible_models = [
                 m for m in available_models
                 if m not in history_used and m not in dealer_used
             ]
 
-        # Step 3: fallback to all models
+        #fallback to all models
         if not possible_models:
             possible_models = [m for m in available_models if m not in dealer_used]
 
