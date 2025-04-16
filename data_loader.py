@@ -9,10 +9,12 @@ def load_all_data():
     parking_df = pd.read_sql("SELECT * FROM Parking_Spot", conn)
 
     past_recs_df = pd.read_sql("""
-        SELECT dealership_id, allocation_year, car_model_name
-        FROM Past_Recommendations
-        WHERE allocation_year IN (2024, 2025)
-    """, conn)
+    SELECT dealership_id, allocation_year, car_model_name
+    FROM Past_Recommendations
+    WHERE allocation_year IN (2024, 2025)
+""", conn)
+
+    
 
 
     
