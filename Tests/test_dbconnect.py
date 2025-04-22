@@ -1,4 +1,10 @@
-import data.dbconnect as dbconnect
+import pytest
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from data import dbconnect
+
 
 def test_connection():
     try:
@@ -8,19 +14,9 @@ def test_connection():
         cursor.execute("SELECT TOP 1 * FROM Dealership")
         row = cursor.fetchone()
 
-        print("Connection successful.")
-        if row:
-            print("Sample data from Dealership:", row)
-        else:
-            print("Dealership table is empty.")
-
         conn.close()
-        return True
 
+        assert row is not None or row is None  # connection and query worked
     except Exception as e:
-        print("Connection failed:", e)
-        return False
+        pytest.fail(f"Database connection or query failed: {e}")
 
-# Run the test
-if __name__ == "__main__":
-    test_connection()

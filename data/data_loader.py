@@ -1,4 +1,4 @@
-# data_loader.py
+
 import pandas as pd
 import data.dbconnect as dbconnect
 
@@ -7,6 +7,7 @@ def load_all_data():
 
     dealership_df = pd.read_sql("SELECT * FROM Dealership", conn)
     parking_df = pd.read_sql("SELECT * FROM Parking_Spot", conn)
+    fs_parking_allocation_df = pd.read_sql("SELECT * FROM Parking_Allocation", conn)
 
     past_recs_df = pd.read_sql("""
     SELECT dealership_id, allocation_year, car_model_name
@@ -24,15 +25,14 @@ def load_all_data():
 
 
     car_model_df = car_model_df.merge(car_type_df, left_on='car_type', right_on='car_type_id')
+    car_model_df = car_model_df.drop(columns=['car_type', 'car_type_id'])
+    car_model_df = car_model_df.rename(columns={'type_name': 'car_type'})
 
-
-    car_model_df.drop(columns=['car_type'], inplace=True)
-    car_model_df.rename(columns={'type_name': 'car_type'}, inplace=True)
 
 
    
 
 
     conn.close()
-    return dealership_df, parking_df, past_recs_df, car_model_df, car_type_df
+    return dealership_df, parking_df, past_recs_df, car_model_df, car_type_df, fs_parking_allocation_df
 
