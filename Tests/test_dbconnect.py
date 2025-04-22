@@ -1,11 +1,10 @@
-import dbconnect
+import data.dbconnect as dbconnect
 
 def test_connection():
     try:
         conn = dbconnect.get_connection()
         cursor = conn.cursor()
 
-        # 🔄 Use a real table for the test instead of MSysObjects
         cursor.execute("SELECT TOP 1 * FROM Dealership")
         row = cursor.fetchone()
 

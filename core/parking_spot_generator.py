@@ -13,14 +13,13 @@ FS_PARKING_CONFIG = {
 }
 
 def generate_parking_spots(dealership_df):
-    print("Generating parking spots from dealership FS values...")
 
     parking_spots = []
     spot_id = 1
 
     for _, row in dealership_df.iterrows():
         gssn_id = row['gssn_id']
-        fs_key = row['fs_value']  # already in format like 'V2', 'P3', etc.
+        fs_key = row['FS_Value'] 
 
         # Skip if no FS mapping exists
         if fs_key not in FS_PARKING_CONFIG:

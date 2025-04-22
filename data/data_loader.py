@@ -1,6 +1,6 @@
 # data_loader.py
 import pandas as pd
-import dbconnect
+import data.dbconnect as dbconnect
 
 def load_all_data():
     conn = dbconnect.get_connection()

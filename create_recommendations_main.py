@@ -1,7 +1,7 @@
 import pandas as pd
-from data_loader import load_all_data
-from recommendation_generator import generate_recommendations
-from db_writer import save_recommendations_to_db
+from data.data_loader import load_all_data
+from core.recommendation_generator import generate_recommendations
+from data.db_writer import save_recommendations_to_db
 
 
 

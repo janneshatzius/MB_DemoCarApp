@@ -1,7 +1,7 @@
 import pandas as pd
-from data_loader import load_all_data
-from db_writer import save_parking_spots, assign_dealership_groups
-from parking_spot_generator import generate_parking_spots  
+from data.data_loader import load_all_data
+from data.db_writer import save_parking_spots, assign_dealership_groups, update_past_recommendations_with_dealership_ids
+from core.parking_spot_generator import generate_parking_spots  
 
 # Load required data from the DB
 dealerships, _, past_recs, car_models, car_types = load_all_data()
@@ -14,3 +14,6 @@ save_parking_spots(parking_spots)
 
 # Update dealership group_id assignments
 assign_dealership_groups()
+
+#Update Past_Recommendations with dealership_id
+update_past_recommendations_with_dealership_ids()

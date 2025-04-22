@@ -1,4 +1,4 @@
-import dbconnect
+import data.dbconnect as dbconnect
 import pandas as pd
 
 def save_recommendations_to_db(recommendations, car_model_df):
@@ -47,15 +47,16 @@ def save_recommendations_to_db(recommendations, car_model_df):
         else:
             #Insert new recommendation
             cursor.execute("""
-                INSERT INTO Recommendation (dealership, parking_spot, car_model, car_model_name, recommendation_source, allocation_year)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO Recommendation (dealership_id, parking_spot, car_model, car_model_name, recommendation_source, allocation_year, gssn_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
                 rec['dealership_id'],
                 rec['parkingspot_id'],
                 model_id,
                 rec['car_model_name'],
                 1,
-                rec['allocation_year']
+                rec['allocation_year'],
+                rec['gssn_id']
             ))
             inserted += 1
 
@@ -64,7 +65,7 @@ def save_recommendations_to_db(recommendations, car_model_df):
 
     print(f"{inserted} inserted | {updated} updated | {inserted + updated} total processed.")
 
-import dbconnect
+import data.dbconnect as dbconnect
 import pandas as pd
 
 def save_parking_spots(parking_spots_df):
@@ -127,9 +128,9 @@ def assign_dealership_groups():
     conn = dbconnect.get_connection()
 
     dealership_df = pd.read_sql("SELECT * FROM Dealership", conn)
-    group_df = pd.read_sql("SELECT * FROM Dealershipgroup", conn)
+    group_df = pd.read_sql("SELECT * FROM Dealershipgroupnew", conn)
 
-    merged_df = dealership_df.merge(group_df, left_on="hb", right_on="VFNRHB", how="left")
+    merged_df = dealership_df.merge(group_df, left_on="HB", right_on="vfnrhb", how="left")
     
     
 
@@ -143,8 +144,8 @@ def assign_dealership_groups():
     updated_rows = []
 
     for _, row in merged_df.iterrows():
-        group_id = row["ID"]
-        company_id = row.get("GSSN_COMPANYID")
+        group_id = row["DG_ID"]
+        company_id = row.get("gssn_companyid")
         gssn_id = row["gssn_id"]
 
         if pd.notnull(group_id):
@@ -161,6 +162,58 @@ def assign_dealership_groups():
 
     print(" Dealership group_id and GSSN_COMPANYID updated successfully.")
     return updated_rows
+
+
+def update_past_recommendations_with_dealership_ids():
+    import pandas as pd
+    import data.dbconnect as dbconnect
+
+    conn = dbconnect.get_connection()
+    cursor = conn.cursor()
+
+    # Make sure you get dealership_id directly in the DataFrame
+    dealership_df = pd.read_sql("SELECT ID, gssn_id FROM Dealership", conn)
+    dealership_df.rename(columns={"ID": "dealership_id"}, inplace=True)
+    past_rec_df = pd.read_sql("SELECT * FROM Past_RecommendationsNEW", conn)
+
+    # Merge on gssn_id
+    merged_df = past_rec_df.merge(dealership_df, on="gssn_id", how="left")
+
+    # Warn about unmatched rows
+    unmatched = merged_df['dealership_id_y'].isnull().sum()
+
+    if unmatched:
+        print(f" {unmatched} records in Past_RecommendationsNEW could not be matched to a Dealership by gssn_id and will be skipped.")
+
+    # Prepare update query
+    update_sql = """
+    UPDATE Past_RecommendationsNEW
+    SET dealership_id = ?
+    WHERE gssn_id = ?
+    """
+
+    updated_count = 0
+
+    for _, row in merged_df.iterrows():
+        if pd.notnull(row["dealership_id_y"]):
+            try:
+                cursor.execute(update_sql, int(row["dealership_id_y"]), row["gssn_id"])
+                updated_count += 1
+            except Exception as e:
+                print(f" Error updating row with gssn_id={row['gssn_id']}: {e}")
+                continue
+            
+    merged_df.rename(columns={"dealership_id_y": "dealership_id"}, inplace=True)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    print(f" Past_RecommendationsNEW updated successfully with {updated_count} dealership_id values.")
+    return updated_count
+
+
+
 
     
 
