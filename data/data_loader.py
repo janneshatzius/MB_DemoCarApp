@@ -24,9 +24,15 @@ def load_all_data():
     car_type_df = pd.read_sql("SELECT * FROM Car_Type", conn)
 
 
-    car_model_df = car_model_df.merge(car_type_df, left_on='car_type', right_on='car_type_id')
-    car_model_df = car_model_df.drop(columns=['car_type', 'car_type_id'])
-    car_model_df = car_model_df.rename(columns={'type_name': 'car_type'})
+    car_model_df = (
+    car_model_df
+    .merge(car_type_df, left_on='car_type', right_on='car_type_id')
+    .drop(columns=['car_type', 'car_type_id'])
+    .rename(columns={'type_name': 'car_type'})
+)
+    print("car_model_df.columns:", car_model_df.columns.tolist())
+    print("car_type_df.columns:", car_type_df.columns.tolist())
+
 
 
 

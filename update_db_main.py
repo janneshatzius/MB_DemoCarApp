@@ -1,19 +1,31 @@
 import pandas as pd
 from data.data_loader import load_all_data
-from data.db_writer import save_parking_spots, assign_dealership_groups, update_past_recommendations_with_dealership_ids
-from core.parking_spot_generator import generate_parking_spots  
+from data.db_writer import (
+    save_parking_spots,
+    assign_dealership_groups,
+    update_past_recommendations_with_dealership_ids
+)
+from core.parking_spot_generator import generate_parking_spots
 
-# Load required data from the DB
-dealerships, _, past_recs, car_models, car_types = load_all_data()
+def main():
+    print("Starting database update process...")
 
-# Generate parking spots based on FS category and allocation logic
-parking_spots = generate_parking_spots(dealerships)
+    # Step 1: Load data
+    try:
+        dealerships, _, _, _, _, fs_allocation = load_all_data()
+    except Exception as e:
+        print(f"Error while loading data: {e}")
+        return
 
-# Save the generated parking spots to the DB
-save_parking_spots(parking_spots)
+    # Step 2: Generate parking spots from allocation logic
+    parking_spots = generate_parking_spots(dealerships, fs_allocation)
 
-# Update dealership group_id assignments
-assign_dealership_groups()
+    # Step 3: Save to DB
+    save_parking_spots(parking_spots)
+    assign_dealership_groups()
+    update_past_recommendations_with_dealership_ids()
 
-#Update Past_Recommendations with dealership_id
-update_past_recommendations_with_dealership_ids()
+    print("Database update process completed.")
+
+if __name__ == "__main__":
+    main()

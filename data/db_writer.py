@@ -128,7 +128,7 @@ def assign_dealership_groups():
     conn = dbconnect.get_connection()
 
     dealership_df = pd.read_sql("SELECT * FROM Dealership", conn)
-    group_df = pd.read_sql("SELECT * FROM Dealershipgroupnew", conn)
+    group_df = pd.read_sql("SELECT * FROM DealershipGroup", conn)
 
     merged_df = dealership_df.merge(group_df, left_on="HB", right_on="vfnrhb", how="left")
     
@@ -174,7 +174,7 @@ def update_past_recommendations_with_dealership_ids():
     # Make sure you get dealership_id directly in the DataFrame
     dealership_df = pd.read_sql("SELECT ID, gssn_id FROM Dealership", conn)
     dealership_df.rename(columns={"ID": "dealership_id"}, inplace=True)
-    past_rec_df = pd.read_sql("SELECT * FROM Past_RecommendationsNEW", conn)
+    past_rec_df = pd.read_sql("SELECT * FROM Past_Recommendations", conn)
 
     # Merge on gssn_id
     merged_df = past_rec_df.merge(dealership_df, on="gssn_id", how="left")
@@ -183,11 +183,11 @@ def update_past_recommendations_with_dealership_ids():
     unmatched = merged_df['dealership_id_y'].isnull().sum()
 
     if unmatched:
-        print(f" {unmatched} records in Past_RecommendationsNEW could not be matched to a Dealership by gssn_id and will be skipped.")
+        print(f" {unmatched} records in Past_Recommendations could not be matched to a Dealership by gssn_id and will be skipped.")
 
     # Prepare update query
     update_sql = """
-    UPDATE Past_RecommendationsNEW
+    UPDATE Past_Recommendations
     SET dealership_id = ?
     WHERE gssn_id = ?
     """
@@ -209,7 +209,7 @@ def update_past_recommendations_with_dealership_ids():
     cursor.close()
     conn.close()
 
-    print(f" Past_RecommendationsNEW updated successfully with {updated_count} dealership_id values.")
+    print(f" Past_Recommendations updated successfully with {updated_count} dealership_id values.")
     return updated_count
 
 
