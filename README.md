@@ -1,8 +1,8 @@
 # MB_DemoCarApp
 
 ## Requirements
-    **Python** 3.10 or 3.11 recommended
-    **Microsoft Access Database Engine** (for '.accdb' support through ODBC driver)
+    Python 3.10 or 3.11 recommended
+    Microsoft Access Database Engine (for '.accdb' support through ODBC driver)
 
     Download Access DB driver:  
     [https://www.microsoft.com/en-us/download/details.aspx?id=13255](https://www.microsoft.com/en-us/download/details.aspx?id=13255)
