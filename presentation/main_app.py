@@ -19,7 +19,7 @@ class MainApp(ctk.CTk):
         self.title("Mercedes Benz Testfahrzeuge")
         self.geometry("1024x768")
 
-        self.recs_df = RecommendationService.load_all_recommendations()
+        self.recs_df = RecommendationService.load_all_recs_df
 
         # allow the root window to expand its one cell
         self.grid_rowconfigure(0, weight=1)
@@ -41,7 +41,7 @@ class MainApp(ctk.CTk):
             UpdateEntriesScreen,
             ChangeCarModelScreen,
             EditRecommendationScreen
-            
+
             
         ):
             page_name = Screen.__name__
