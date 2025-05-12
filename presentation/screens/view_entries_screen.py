@@ -51,6 +51,24 @@ class ViewEntriesScreen(ctk.CTkFrame):
         # show top 5
         self._display_recs(self._all_recs.head(5))
 
+    def perform_search(self):
+        """
+        Exact-match, comma-separated search on car_model_name.
+        """
+        raw = self.search_entry.get().strip()
+        if not raw:
+            # no filter → top 5
+            df = self._all_recs.head(5)
+        else:
+            terms = [t.strip().lower() for t in raw.split(",") if t.strip()]
+            # exact-match on car_model_name
+            df = self._all_recs[
+                self._all_recs['car_model_name']
+                    .str.lower()
+                    .isin(terms)
+            ]
+        self._display_recs(df)
+
 
     def _build_detail_form(self):
         # title
