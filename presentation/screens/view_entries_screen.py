@@ -51,6 +51,31 @@ class ViewEntriesScreen(ctk.CTkFrame):
         # show top 5
         self.populate_table(df=self._all_recs.head(5))
 
+    def populate_table(self, df):
+        # clear
+        for w in self.scrollable_frame.winfo_children():
+            w.destroy()
+
+        if df.empty:
+            ctk.CTkLabel(self.scrollable_frame,
+                         text="Keine Einträge gefunden.",
+                         font=("Arial", 14)).pack(pady=20)
+            return
+
+        # header row
+        for col_idx, col in enumerate(df.columns):
+            ctk.CTkLabel(self.scrollable_frame,
+                         text=col,
+                         font=("Arial", 12, "bold")
+            ).grid(row=0, column=col_idx, padx=10, pady=5)
+
+        # data rows
+        for row_idx, row in enumerate(df.itertuples(index=False), start=1):
+            for col_idx, val in enumerate(row):
+                ctk.CTkLabel(self.scrollable_frame,
+                             text=str(val)
+                ).grid(row=row_idx, column=col_idx, padx=10, pady=2)
+
     def perform_search(self):
         """
         Exact-match, comma-separated search on car_model_name.
