@@ -49,7 +49,7 @@ class ViewEntriesScreen(ctk.CTkFrame):
         self._selected_rec = None
 
         # show top 5
-        self._display_recs(self._all_recs.head(5))
+        self.populate_table(df=self._all_recs.head(5))
 
     def perform_search(self):
         """
@@ -67,7 +67,7 @@ class ViewEntriesScreen(ctk.CTkFrame):
                     .str.lower()
                     .isin(terms)
             ]
-        self._display_recs(df)
+        self.populate_table(df=df)
 
 
     def _build_detail_form(self):
