@@ -5,7 +5,7 @@ import pandas as pd
 
 from data.car_repository import (
     get_all_car_models,
-    get_car_model_id_by_name
+    
 
 ) 
 from data.dealership_repository import get_all_dealerships
@@ -14,8 +14,6 @@ from data.recommendation_repository import (
     get_past_recommendations,
     insert_recommendations,
     get_recommendations_by_dealership,
-    update_recommendation as repo_update,
-    get_max_allocation_year,
     move_recommendations_to_past,
     delete_recommendations_for_year
 )
@@ -33,17 +31,6 @@ class RecommendationService:
             conn.close()
         return recs
 
-    @staticmethod
-    def update(recommendation_id, new_model_name, note):
-        conn = get_connection()
-        try:
-            model_id = get_car_model_id_by_name(conn, new_model_name)
-            if model_id is None:
-                raise ValueError(f"Modell «{new_model_name}» nicht gefunden")
-            # source = 2 whenever user edits
-            repo_update(conn, recommendation_id, model_id, new_model_name, 2, note)
-        finally:
-            conn.close()
 
     @staticmethod
     def generate_recommendations_for_year(target_year: int) -> int:

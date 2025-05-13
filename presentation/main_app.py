@@ -5,7 +5,7 @@ from presentation.screens.start_screen import StartScreen
 from presentation.screens.view_entries_screen import ViewEntriesScreen
 from presentation.screens.update_entries_screen import UpdateEntriesScreen
 from presentation.screens.change_car_model_screen import ChangeCarModelScreen
-from presentation.screens.change_recommendation_screen import EditRecommendationScreen
+
 
 from core.load_recommendations_service import RecommendationService
 
@@ -19,7 +19,7 @@ class MainApp(ctk.CTk):
         self.title("Mercedes Benz Testfahrzeuge")
         self.geometry("1024x768")
 
-        self.recs_df = RecommendationService.load_all_recs_df
+        self.recs_df = RecommendationService.list_all_recommendations()
 
         # allow the root window to expand its one cell
         self.grid_rowconfigure(0, weight=1)
@@ -39,8 +39,8 @@ class MainApp(ctk.CTk):
             StartScreen,
             ViewEntriesScreen,
             UpdateEntriesScreen,
-            ChangeCarModelScreen,
-            EditRecommendationScreen
+            ChangeCarModelScreen
+            
 
             
         ):

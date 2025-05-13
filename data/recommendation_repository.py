@@ -16,13 +16,6 @@ def get_past_recommendations(years):
     conn.close()
     return df
 
-def get_model_id_by_name(conn, model_name):
-    cur = conn.cursor()
-    cur.execute("SELECT Car_Model_ID FROM Car_Model WHERE model_name = ?", model_name)
-    row = cur.fetchone()
-    if not row:
-        raise ValueError(f"Unknown model_name {model_name}")
-    return row[0]
 
 def get_recommendations_by_dealership(conn, dealership_id):
     cur = conn.cursor()
@@ -56,22 +49,7 @@ def get_recommendations_by_dealership(conn, dealership_id):
         for r in rows
     ]
 
-def update_recommendation(conn, recommendation_id, car_model_id, car_model_name, recommendation_source, note):
-    cur = conn.cursor()
-    cur.execute("""
-        UPDATE Recommendation
-           SET car_model =    ?
-             , car_model_name = ?
-             , recommendation_source = ?
-             , note = ?
-         WHERE recommendation_id = ?
-    """,
-    car_model_id,
-    car_model_name,
-    recommendation_source,
-    note,
-    recommendation_id)
-    conn.commit()
+
 
 
 def insert_recommendations( recommendations):
@@ -132,12 +110,6 @@ def delete_recommendations_for_year(conn, year: int):
         (year,)
     )
     conn.commit()
-
-def get_max_allocation_year(conn):
-    cur = conn.cursor()
-    cur.execute("SELECT MAX(allocation_year) FROM Recommendation")
-    row = cur.fetchone()
-    return row[0]
 
 def move_recommendations_to_past(conn, year: int):
     """

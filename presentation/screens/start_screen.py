@@ -79,3 +79,10 @@ class StartScreen(ctk.CTkFrame):
             print("[ERROR]", e)
             messagebox.showerror("Fehler", str(e), parent=self)
 
+            # now reload the view-entries screen
+            view = self.controller.frames["ViewEntriesScreen"]
+            view.reload_data()
+
+    # finally switch to it
+            self.controller.show_frame("ViewEntriesScreen")
+

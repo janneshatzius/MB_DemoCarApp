@@ -1,13 +1,25 @@
 from data.dbconnect import get_connection
 import pandas as pd
+from typing import List, Dict
 
 
 
-def fetch_all_types() -> list[str]:
+def fetch_all_types():
+    """
+    Returns a simple list of all distinct car_type_name values,
+    ordered alphabetically.
+    """
     conn = get_connection()
-    df = pd.read_sql("SELECT DISTINCT type_name FROM Car_Type ORDER BY type_name", conn)
+    cur  = conn.cursor()
+    cur.execute("""
+        SELECT DISTINCT [car_type_name]
+          FROM [Car_Model]
+         ORDER BY [car_type_name]
+    """)
+    rows = cur.fetchall()
     conn.close()
-    return df['type_name'].dropna().tolist()
+    # each row is a one‐element tuple
+    return [r[0] for r in rows]
 
 def fetch_models_by_type(type_name: str) -> list[str]:
     conn = get_connection()
@@ -18,6 +30,28 @@ def fetch_models_by_type(type_name: str) -> list[str]:
     )
     conn.close()
     return df['model_name'].dropna().tolist()
+
+def get_car_models_by_type(car_type_name: str) -> List[Dict[str, str]]:
+    """
+    Returns all models for a given car_type_name,
+    as a list of dicts: [{ "id": car_model_id, "name": model_name }, …]
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT car_model_id, model_name
+              FROM Car_Model
+             WHERE car_type_name = ?
+            ORDER BY model_name
+            """,
+            (car_type_name,)
+        )
+        rows = cur.fetchall()
+        return [{"id": row[0], "name": row[1]} for row in rows]
+    finally:
+        conn.close()
 
 
 def get_all_car_models():

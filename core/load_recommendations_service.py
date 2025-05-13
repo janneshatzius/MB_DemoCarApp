@@ -1,40 +1,41 @@
-from data.recommendation_repository import (
-    
-    update_recommendation
-)
+
 from data.load_recommendations_repository import (
-    get_all_recommendations_with_type,
-    get_car_models_by_type
+    get_all_recommendations_df,
+    get_car_models_by_type,
+    update_recommendation
+
+    
 )
+from data.car_repository import get_car_models_by_type
 from data.dbconnect import get_connection
 import pandas as pd
+from typing import List, Dict
 
 class RecommendationService:
     AUTO_SOURCE = 1
     MANUAL_SOURCE = 2
 
     @staticmethod
-    def load_all_recs_df() -> pd.DataFrame:
-        """
-        Load everything once, into a DataFrame.
-        """
-        records = get_all_recommendations_with_type()
-        return pd.DataFrame(records)
+    def list_all_recommendations():
+        return get_all_recommendations_df()
 
     @staticmethod
-    def list_models_for_type(car_type: str):
-        """
-        Returns a list of {"id":…, "name":…} for that car_type.
-        """
-        return get_car_models_by_type(car_type)
+    def list_models_for_type(car_type_name: str):
+        # returns a list of {"id":…, "name":…}
+        return get_car_models_by_type(car_type_name)
 
     @staticmethod
-    def save_changes(rec_id: int, model_id: int, model_name: str, note: str):
-        """
-        Persist the user's edits.
-        """
+    def save_changes(rec_id: int, new_model_id: int, new_model_name: str, note: str):
         conn = get_connection()
         try:
-            update_recommendation(conn, rec_id, model_id, model_name, note)
+            # pass conn *first*, then the other four parameters
+            update_recommendation(conn,
+                                  rec_id,
+                                  new_model_id,
+                                  new_model_name,
+                                  note)
+        except Exception as e:
+            # print to terminal instead of messagebox
+            print("[ERROR] updating recommendation:", e)
         finally:
             conn.close()

@@ -45,7 +45,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
             ("Agentenstandorte erneuern", self.not_implemented),
             ("Parkplätze erneuern", self._on_refresh_parking),
             ("Automodelle anpassen", lambda: controller.show_frame("ChangeCarModelScreen")),
-            ("Jahresplanung anpassen", lambda: controller.show_frame("EditRecommendationScreen"))
+            
         ]
 
         for i, (text, command) in enumerate(buttons):
