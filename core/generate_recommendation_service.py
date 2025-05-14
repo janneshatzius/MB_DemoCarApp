@@ -5,12 +5,10 @@ import pandas as pd
 
 from data.car_repository import (
     get_all_car_models,
-    
-
 ) 
 from data.dealership_repository import get_all_dealerships
 from data.parking_repository import get_all_parking_spots
-from data.recommendation_repository import (
+from data.generate_recommendation_repository import (
     get_past_recommendations,
     insert_recommendations,
     get_recommendations_by_dealership,
@@ -43,13 +41,11 @@ class RecommendationService:
         delete_recommendations_for_year(conn, target_year-1)
         hist_years = [target_year - 2, target_year - 1]
 
-        # fetch all our data (DataFrames or lists)
+        # fetch all necessary data
         dealers_df = get_all_dealerships()        
         spots_df   = get_all_parking_spots()       
         past_df    = get_past_recommendations(hist_years)
         models_df  = get_all_car_models()
-
-        # helper to convert to list-of-dicts
         def to_records(x):
             return x.to_dict("records") if isinstance(x, pd.DataFrame) else x
 
@@ -69,7 +65,7 @@ class RecommendationService:
             for d in dealers
         }
 
-        # group models by lowercase car_type_name
+        # group models by car_type_name
         model_map = {}
         for m in models:
             t = m["car_type_name"].lower()
@@ -108,7 +104,7 @@ class RecommendationService:
                 # no models for that type at all
                 continue
 
-            # apply successive relaxations until we get ≥1 choice
+            # apply relaxation until we get 1 or more choice
             for test in (
                 lambda m: m["model_name"] not in history_set
                           and m["model_name"] not in dealer_set
@@ -126,7 +122,6 @@ class RecommendationService:
             mid    = choice["id"]
             mname  = choice["model_name"]
 
-            # mark as used
             used_by_dealer.setdefault(did, set()).add(mname)
             used_by_group .setdefault(grp, set()).add(mname)
 
@@ -142,7 +137,6 @@ class RecommendationService:
                 "dealership_name":       dealership_name
             })
 
-        # bulk‐insert
         insert_recommendations(recs)
         return len(recs)
     

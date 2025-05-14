@@ -3,9 +3,9 @@ from customtkinter import CTkImage
 from tkinter import messagebox, simpledialog
 from datetime import datetime
 from PIL import Image
-import traceback
 import os
-from core.recommendation_service import RecommendationService
+from config import ICON_MERCEDES
+from core.generate_recommendation_service import RecommendationService
 
 
 class StartScreen(ctk.CTkFrame):
@@ -20,11 +20,9 @@ class StartScreen(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
 
         # Mercedes-Benz Logo
-        logo_path = os.path.join("assets", "Mercedes-Benz-Logo.png")
         try:
-            image = Image.open(logo_path).resize((100, 100))
-            self.logo_img = CTkImage(light_image=image, dark_image=image, size=(100, 100))
-            logo_label = ctk.CTkLabel(self, image=self.logo_img, text="")
+            mercedes_logo = ctk.CTkImage(light_image=Image.open(ICON_MERCEDES), dark_image=Image.open(ICON_MERCEDES),size=(100,100))
+            logo_label = ctk.CTkLabel(self, image=mercedes_logo, text="")
             logo_label.place(x=15, y=15)  
         except Exception as e:
             print("Logo load error:", e)
@@ -45,7 +43,7 @@ class StartScreen(ctk.CTkFrame):
         }
 
         buttons = [
-            ("Datenbankeinträge einsehen", lambda: controller.show_frame("ViewEntriesScreen")),
+            ("Datenbankeinträge einsehen", lambda: controller.show_frame("RecommendationsScreen")),
             ("Datenbankeinträge erneuern", lambda: controller.show_frame("UpdateEntriesScreen")),
             ("Jahresplanung erstellen",      self._on_create_recommendations),
         ]
@@ -83,6 +81,6 @@ class StartScreen(ctk.CTkFrame):
             view = self.controller.frames["ViewEntriesScreen"]
             view.reload_data()
 
-    # finally switch to it
+    
             self.controller.show_frame("ViewEntriesScreen")
 

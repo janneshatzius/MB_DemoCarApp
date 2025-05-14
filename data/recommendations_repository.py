@@ -1,22 +1,5 @@
-# data/load_recommendations.py
-import pyodbc
 import pandas as pd
 from data.dbconnect import get_connection
-
-def get_all_car_models() -> list[dict]:
-    """
-    Returns a list of all car models (id + name).
-    """
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT car_model_id, model_name
-          FROM Car_Model
-        ORDER BY model_name
-    """)
-    rows = cur.fetchall()
-    conn.close()
-    return [{"id": r[0], "name": r[1]} for r in rows]
 
 def get_all_recommendations_df():
     """
@@ -56,22 +39,7 @@ def get_all_recommendations_df():
     else:
         return pd.DataFrame(columns=cols)
 
-def get_car_models_by_type(car_type_name):
-    """
-    Returns all models (id + name) for a given car_type.
-    """
-    conn = get_connection()
-    cur  = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT car_model_id, model_name
-              FROM Car_Model
-             WHERE car_type_name = ?
-        """, (car_type_name,))
-        rows = cur.fetchall()
-    finally:
-        conn.close()
-    return [{"id": r[0], "name": r[1]} for r in rows]
+
 
 def update_recommendation(conn, rec_id, new_model_id, new_model_name, note):
     cur = conn.cursor()

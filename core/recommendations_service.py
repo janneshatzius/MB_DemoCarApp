@@ -1,15 +1,10 @@
 
-from data.load_recommendations_repository import (
+from data.recommendations_repository import (
     get_all_recommendations_df,
-    get_car_models_by_type,
     update_recommendation
-
-    
 )
 from data.car_repository import get_car_models_by_type
 from data.dbconnect import get_connection
-import pandas as pd
-from typing import List, Dict
 
 class RecommendationService:
     AUTO_SOURCE = 1

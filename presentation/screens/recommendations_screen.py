@@ -1,4 +1,3 @@
-# presentation/screens/view_entries_screen.py
 import os
 import tkinter as tk
 import customtkinter as ctk
@@ -6,36 +5,34 @@ import pandas as pd
 from customtkinter import CTkImage
 from PIL import Image
 from tkinter import Canvas
-from core.load_recommendations_service import RecommendationService
+from config import ICON_HOME
+from core.recommendations_service import RecommendationService
 
-class ViewEntriesScreen(ctk.CTkFrame):
+class RecommendationsScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
         self.configure(fg_color="#A9A9A9")
 
-        # === Home button ===
-        home_icon_path = os.path.join("assets", "home-icon.png")
+
+
+        # === Home icon ==
         try:
-            print("Loading home icon from", home_icon_path)
-            home_img = Image.open(home_icon_path).resize((25,25))
-            self.home_icon = CTkImage(light_image=home_img, dark_image=home_img, size=(25,25))
+            home_img = ctk.CTkImage(light_image=Image.open(ICON_HOME), dark_image=Image.open(ICON_HOME),size=(25,25))
             home_btn = ctk.CTkButton(
             self,
-            image=self.home_icon,
+            image=home_img,
             text="",
             fg_color="transparent",
             hover_color="#888888",
-            width=40, height=40, # give it some room
+            width=40, height= 40,
             command=lambda: controller.show_frame("StartScreen")
         )
             home_btn.place(x=10, y=10)
-
-            home_btn.lift()      # bring it to front
+              
         except Exception as e:
-            print("🚨 Home icon load error:", e)
+            print("Home icon load error:", e)
 
-    
 
         # === Two-column layout: left=table, right=detail form ===
         self.grid_columnconfigure(0, weight=3)
@@ -74,14 +71,14 @@ class ViewEntriesScreen(ctk.CTkFrame):
         self._build_detail_form()
 
         # === Load all recommendations once ===
-        self._all_recs = RecommendationService.list_all_recommendations()  # pandas.DataFrame
+        self._all_recs = RecommendationService.list_all_recommendations()
         self._selected_rec = None
 
         # Show only the first 5 by default
         self._current_df = self._all_recs.head(5)
         self.populate_table(self._current_df)
 
-        home_btn.lift()
+        home_btn.lift() 
 
     def _build_detail_form(self):
         # — Title —
@@ -89,6 +86,10 @@ class ViewEntriesScreen(ctk.CTkFrame):
             self.detail, text="Bearbeite Empfehlung", font=("Arial", 16, "bold")
         )
         self.detail_title.pack(pady=(0,20))
+
+        # - GSSN (readonly) -
+        #self.lbl_type = ctk.CTkLabel(self.detail, text="GSSN: -", font=("Arial", 14))
+        #self.lbl_type.pack(anchor="w", padx=10, pady=5)
 
         # — Car type (readonly) —
         self.lbl_type = ctk.CTkLabel(self.detail, text="Typ: —", font=("Arial", 14))
@@ -162,7 +163,9 @@ class ViewEntriesScreen(ctk.CTkFrame):
 
         # Show the car‐type in the detail pane (if you still want to display it):
         car_type = rec["car_type"]
+        #gssn = rec["gssn_id"]
         self.lbl_type.configure(text=f"Typ: {car_type}")
+        #self.lbl_type.configure(text=f"GSSN: {gssn}")
 
         models = RecommendationService.list_models_for_type(car_type)
         self.dd_model.configure(values=[m["name"] for m in models])

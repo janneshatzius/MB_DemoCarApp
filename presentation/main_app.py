@@ -1,13 +1,14 @@
 
 import customtkinter as ctk
+from config import APP_ICON_ICO, WINDOW_TITLE, DEFAULT_HEIGHT, DEFAULT_WIDTH
 
 from presentation.screens.start_screen import StartScreen
-from presentation.screens.view_entries_screen import ViewEntriesScreen
+from presentation.screens.recommendations_screen import RecommendationsScreen
 from presentation.screens.update_entries_screen import UpdateEntriesScreen
 from presentation.screens.change_car_model_screen import ChangeCarModelScreen
 
 
-from core.load_recommendations_service import RecommendationService
+from core.recommendations_service import RecommendationService
 
 
 
@@ -15,9 +16,13 @@ class MainApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        self.iconbitmap(str(APP_ICON_ICO))
+        
+
         # --- window setup ---
-        self.title("Mercedes Benz Testfahrzeuge")
+        self.title(WINDOW_TITLE)
         self.geometry("1024x768")
+
 
         self.recs_df = RecommendationService.list_all_recommendations()
 
@@ -37,7 +42,7 @@ class MainApp(ctk.CTk):
         self.frames = {}
         for Screen in (
             StartScreen,
-            ViewEntriesScreen,
+            RecommendationsScreen,
             UpdateEntriesScreen,
             ChangeCarModelScreen
             

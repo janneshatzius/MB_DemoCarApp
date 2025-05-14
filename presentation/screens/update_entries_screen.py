@@ -2,6 +2,7 @@ import customtkinter as ctk
 from customtkinter import CTkImage
 from PIL import Image
 import os
+from config import ICON_HOME
 from core.parking_service import create_all_parking_spots
 
 class UpdateEntriesScreen(ctk.CTkFrame):
@@ -15,16 +16,15 @@ class UpdateEntriesScreen(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
 
         # === Home icon ===
-        home_icon_path = os.path.join("assets", "home-icon.png")  # <- provide this file
         try:
-            home_img = Image.open(home_icon_path).resize((25, 25))
-            self.home_icon = CTkImage(light_image=home_img, dark_image=home_img, size=(25, 25))
+            home_img = ctk.CTkImage(light_image=Image.open(ICON_HOME), dark_image=Image.open(ICON_HOME),size=(25,25))
 
-            home_button = ctk.CTkButton(self, image=self.home_icon, text="", width=30, height=30,
+            home_button = ctk.CTkButton(self, image=home_img, text="", width=30, height=30,
                                         fg_color="transparent", hover_color="#888888", command=lambda: controller.show_frame("StartScreen"))
             home_button.place(x=10, y=10)
         except Exception as e:
             print("Home icon load error:", e)
+
 
         # === Button group ===
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
