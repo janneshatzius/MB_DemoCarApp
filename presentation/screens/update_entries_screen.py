@@ -1,7 +1,5 @@
 import customtkinter as ctk
-from customtkinter import CTkImage
 from PIL import Image
-import os
 from config import ICON_HOME
 from core.parking_service import create_all_parking_spots
 

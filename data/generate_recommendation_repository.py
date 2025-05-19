@@ -1,4 +1,3 @@
-import pyodbc
 import traceback
 import pandas as pd
 from data.dbconnect import get_connection
@@ -18,6 +17,7 @@ def get_past_recommendations(years):
 
 
 def get_recommendations_by_dealership(conn, dealership_id):
+    conn = get_connection()
     cur = conn.cursor()
     sql = """
         SELECT
@@ -62,16 +62,22 @@ def insert_recommendations( recommendations):
     """
     sql = """
         INSERT INTO Recommendation
-          (dealership_id,
-           gssn_id,
-           parking_spot,
-           car_model,
-           recommendation_source,
-           allocation_year,
-           car_model_name,
-           locality,
-           dealership_name)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ([dealership_id],
+     [gssn_id],
+     [gssn_company],
+     [HB],
+     [VFNR],
+     [dealership_name],
+     [locality],
+     [parking_type],
+     [car_model],
+     [car_model_name],
+     [parking_spot],
+     [recommendation_source],
+     [allocation_year],
+     [note])
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
     """
     
 
@@ -79,13 +85,18 @@ def insert_recommendations( recommendations):
         params = (
             rec["dealership_id"],
             rec["gssn_id"],
+            rec["gssn_company"], 
+            rec["HB"],
+            rec["VFNR"],
+            rec["dealership_name"],
+            rec["locality"],
+            rec["parking_type"],
+            rec["car_model"], 
+            rec["car_model_name"],
             rec["parking_spot"],
-            rec["car_model"],        
             rec["recommendation_source"],
             rec["allocation_year"],      
-            rec["car_model_name"],
-            rec["locality"],
-            rec["dealership_name"]     
+            rec["note"]
         )
         try:
             cur.execute(sql, params)

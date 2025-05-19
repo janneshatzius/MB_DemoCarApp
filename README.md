@@ -17,4 +17,3 @@
     python-dotenv - To load environment variables from a .env file, like DB path
     pytest - To run unit tests and validate application logic
     openpyxl - To read/write Excel files
-

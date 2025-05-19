@@ -1,11 +1,10 @@
 import customtkinter as ctk
-from customtkinter import CTkImage
 from tkinter import messagebox, simpledialog
 from datetime import datetime
 from PIL import Image
-import os
 from config import ICON_MERCEDES
-from core.generate_recommendation_service import RecommendationService
+from core.generate_recommendation_service import GenerateRecommendationService
+
 
 
 class StartScreen(ctk.CTkFrame):
@@ -67,7 +66,7 @@ class StartScreen(ctk.CTkFrame):
             return
 
         try:
-            count = RecommendationService.generate_recommendations_for_year(year)
+            count = GenerateRecommendationService.generate_recommendations_for_year(year)
             messagebox.showinfo(
                 "Erfolg",
                 f"{count} Empfehlungen für {year} erstellt.",
@@ -77,10 +76,7 @@ class StartScreen(ctk.CTkFrame):
             print("[ERROR]", e)
             messagebox.showerror("Fehler", str(e), parent=self)
 
-            # now reload the view-entries screen
-            view = self.controller.frames["ViewEntriesScreen"]
-            view.reload_data()
-
-    
-            self.controller.show_frame("ViewEntriesScreen")
+        self.controller.show_frame("RecommendationsScreen")
+        screen = self.controller.frames["RecommendationsScreen"]
+        screen.reload_data()
 

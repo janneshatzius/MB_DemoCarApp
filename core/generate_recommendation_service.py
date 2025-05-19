@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 from data.dbconnect import get_connection
 import pandas as pd
 
@@ -17,7 +16,7 @@ from data.generate_recommendation_repository import (
 )
 
 
-class RecommendationService:
+class GenerateRecommendationService:
     AUTO_SOURCE = 1
 
     @staticmethod
@@ -60,7 +59,10 @@ class RecommendationService:
                 "group_id":    d.get("group_id"),
                 "gssn_id":     d.get("gssn_id"),
                 "locality":    d.get("locality"),
-                "dealership_name":     d.get("dealership_name")
+                "dealership_name":     d.get("dealership_name"),
+                "HB":               d.get("HB"),
+                "VFNR":             d.get("VFNR"),
+                "gssn_company": d.get("gssn_company")
             }
             for d in dealers
         }
@@ -93,7 +95,7 @@ class RecommendationService:
             info = dealer_map.get(did)
             if not info:
                 continue
-            grp, gssn, locality, dealership_name = info["group_id"], info["gssn_id"], info["locality"], info["dealership_name"]
+            grp, gssn, locality, dealership_name, HB, VFNR, gssn_company = info["group_id"], info["gssn_id"], info["locality"], info["dealership_name"], info["HB"], info["VFNR"], info["gssn_company"]
 
             history_set = past_used.get(did, set())
             dealer_set  = used_by_dealer .get(did, set())
@@ -128,13 +130,18 @@ class RecommendationService:
             recs.append({
                 "dealership_id":         did,
                 "gssn_id":               gssn,
+                "HB":                    HB,
+                "VFNR":                  VFNR,
+                "parking_type":          ctype,
                 "parking_spot":          ps_id,
                 "car_model":             mid,
                 "car_model_name":        mname,
-                "recommendation_source": RecommendationService.AUTO_SOURCE,
+                "recommendation_source": GenerateRecommendationService.AUTO_SOURCE,
                 "allocation_year":       target_year,
                 "locality":              locality,
-                "dealership_name":       dealership_name
+                "dealership_name":       dealership_name,
+                "note":                  "",
+                "gssn_company": gssn_company
             })
 
         insert_recommendations(recs)

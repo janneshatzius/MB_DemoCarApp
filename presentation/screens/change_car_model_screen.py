@@ -1,8 +1,6 @@
 import os
 import customtkinter as ctk
-from customtkinter import CTkImage
-from tkinter import messagebox
-from PIL import Image, ImageTk
+from PIL import Image
 from core.car_service import CarModelService
 from config import ICON_HOME, ICON_BACKPAGE
 
@@ -37,10 +35,22 @@ class ChangeCarModelScreen(ctk.CTkFrame):
             print("Backpage icon load error:", e)
 
         # ADD MODEL section
-        add_frame = ctk.CTkFrame(self, fg_color="transparent")
-        add_frame.pack(pady=20)
-        #add_frame.
+        central_frame = ctk.CTkFrame(self, fg_color="transparent")
+        central_frame.place(relx=0.5, rely=0.5, anchor="center")
+        # ADD MODEL section (now child of central_frame)
+        add_frame = ctk.CTkFrame(central_frame, fg_color="transparent")
+        add_frame.pack(pady=(0,20))
         ctk.CTkLabel(add_frame, text="Neues Modell hinzufügen").pack()
+
+        self.status_label = ctk.CTkLabel(
+            self,
+            text="",
+            text_color="black",
+            font=("Arial", 14)
+        )
+        self.status_label.place(relx=0.5, rely=0.9, anchor="center")
+        self.status_label.configure(text="")  # Clear initial text
+
 
 
         self.add_type_var = ctk.StringVar()
@@ -60,8 +70,8 @@ class ChangeCarModelScreen(ctk.CTkFrame):
 
 
         # REMOVE MODEL section
-        rem_frame = ctk.CTkFrame(self, fg_color="transparent")
-        rem_frame.pack(pady=20)
+        rem_frame = ctk.CTkFrame(central_frame, fg_color="transparent")
+        rem_frame.pack()
         ctk.CTkLabel(rem_frame, text="Modell entfernen").pack()
 
         self.rem_type_var = ctk.StringVar()
@@ -122,12 +132,7 @@ class ChangeCarModelScreen(ctk.CTkFrame):
         if name:
             CarModelService.add_model(type_name=t, model_name=name)
             self.add_model_entry.delete(0, "end")
-            ctk.CTkLabel(
-            self,
-            text="Automodel erfolgreich entfernt",
-            text_color="black",
-            font=("Arial", 14)
-            ).place(relx=0.5, rely=0.9, anchor="center")
+            self.status_label.configure(text="Automodel erfolgreich hinzugefügt")
             self._on_rem_type_selected(t)
             
             
@@ -138,10 +143,5 @@ class ChangeCarModelScreen(ctk.CTkFrame):
         m = self.rem_model_var.get()
         if m:
             CarModelService.delete_model(model_name=m)
-            ctk.CTkLabel(
-            self,
-            text="Automodel erfolgreich entfernt",
-            text_color="black",
-            font=("Arial", 14)
-            ).place(relx=0.5, rely=0.9, anchor="center")
+            self.status_label.configure(text="Automodel erfolgreich entfernt")
             self._on_rem_type_selected(t)

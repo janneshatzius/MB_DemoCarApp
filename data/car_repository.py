@@ -1,6 +1,6 @@
 from data.dbconnect import get_connection
 import pandas as pd
-from typing import List, Dict
+
 
 
 

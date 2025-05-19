@@ -10,21 +10,20 @@ def get_all_recommendations_df():
     try:
         df = cur.execute("""
             SELECT
-                r.recommendation_id,
-                r.dealership_id,
-                r.gssn_id,
-                r.dealership_name,
-                r.locality,
-                r.parking_spot,
-                p.car_type,               
-                r.car_model_name,
-                r.recommendation_source,
-                r.allocation_year,
-                r.note
-            FROM Recommendation AS r
-            LEFT JOIN Parking_Spot AS p
-              ON r.parking_spot = p.parkingspot_id
-            ORDER BY r.recommendation_id
+                recommendation_id,
+                gssn_id,
+                gssn_company,
+                HB,
+                VFNR,
+                dealership_name,
+                locality,
+                parking_type,               
+                car_model_name,
+                allocation_year,
+                recommendation_source,
+                note
+            FROM Recommendation
+            ORDER BY gssn_id
         """,)
         cols = [col[0] for col in cur.description]
         rows = cur.fetchall()

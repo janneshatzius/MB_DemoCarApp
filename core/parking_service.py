@@ -1,38 +1,48 @@
-from data.dbconnect import get_connection
 from data.dealership_repository import get_all_dealerships
-from data.parking_repository    import (
-    get_allocation_for_fs,
+from data.parking_repository import (
+    get_allocation_map,
     get_parking_category_map,
-    insert_parking_spots_bulk
+    insert_parking_spots_bulk,
+    get_existing_spot_counts,
+    delete_spots_for_dealers
 )
 
 def create_all_parking_spots():
-    conn = get_connection()
-    try:
-        # build a map: parkingcategory_id → {car_type_id, car_type}
-        category_map = get_parking_category_map(conn)
+    # 1) load everything in bulk
+    alloc_map       = get_allocation_map()        # fs_value → [(cat_id, qty),…]
+    category_map    = get_parking_category_map()  # cat_id → {…}
+    existing_counts = get_existing_spot_counts()  # dealer_id → existing_count
+    dealers         = get_all_dealerships()       # list of dicts
 
-        spots_to_insert = []
-        for d in get_all_dealerships():
-            dealer_id = d["dealership_id"]
-            fs_val    = d["fs_value"]
-            gssn_id   = d["gssn_id"]
+    # 2) figure out which dealers need to be rebuilt
+    to_delete = []
+    spots      = []
 
-            # for each (parking_category_id, qty) row in your Parking_Allocation table
-            for parking_cat_id, qty in get_allocation_for_fs(fs_val, conn):
-                mapping = category_map.get(parking_cat_id)
+    for d in dealers:
+        did    = d["dealership_id"]
+        fs_val = d["FS_Value"]
+        gssn   = d["gssn_id"]
+
+        desired_total = sum(q for _, q in alloc_map.get(fs_val, []))
+        existing      = existing_counts.get(did, 0)
+
+        if existing != desired_total:
+            to_delete.append(did)
+
+            # build exactly desired_total spots
+            for cat_id, qty in alloc_map.get(fs_val, []):
+                mapping = category_map.get(cat_id)
                 if not mapping:
                     continue
-                # add as many spots as qty
                 for _ in range(qty):
-                    spots_to_insert.append((
-                        dealer_id,
+                    spots.append((
+                        did,
                         mapping["car_type"],
                         mapping["car_type_id"],
-                        gssn_id
+                        gssn
                     ))
 
-        insert_parking_spots_bulk(spots_to_insert, conn)
-        conn.commit()
-    finally:
-        conn.close()
+    # 3) do one delete + one bulk insert
+    delete_spots_for_dealers(to_delete)
+    insert_parking_spots_bulk(spots)
+
