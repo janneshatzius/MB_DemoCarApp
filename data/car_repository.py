@@ -50,10 +50,6 @@ def get_car_models_by_type(car_type_name):
         conn.close()
     return [{"id": r[0], "name": r[1]} for r in rows]
 
-
-
-
-
 def get_all_car_models():
     conn = get_connection()
     df = pd.read_sql_query("SELECT * FROM Car_Model", conn)

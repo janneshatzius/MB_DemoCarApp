@@ -55,7 +55,7 @@ def update_recommendation(conn, rec_id, new_model_id, new_model_name, note):
         new_model_id,
         new_model_name,
         note,
-        2,        # your “manual” source
+        2,
         rec_id
     )
     cur.execute(sql, params)

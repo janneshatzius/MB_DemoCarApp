@@ -24,7 +24,6 @@ class ChangeCarModelScreen(ctk.CTkFrame):
 
 
             # === Backpage ===
-        backpage_path = os.path.join("assets", "back-arrow.png")
         try:
             backpage_img = ctk.CTkImage(light_image=Image.open(ICON_BACKPAGE), dark_image=Image.open(ICON_BACKPAGE), size=(25,25))
 

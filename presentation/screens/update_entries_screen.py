@@ -40,7 +40,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
         }
 
         buttons = [
-            ("Agentenstandorte erneuern", self.not_implemented),
+            ("Agentenstandorte erneuern", lambda: controller.show_frame("UpdateDealershipsScreen")),
             ("Parkplätze erneuern", self._on_refresh_parking),
             ("Automodelle anpassen", lambda: controller.show_frame("ChangeCarModelScreen")),
             
@@ -49,9 +49,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
         for i, (text, command) in enumerate(buttons):
             ctk.CTkButton(button_frame, text=text, command=command, **button_style).grid(row=i, column=0, pady=10)
 
-    def not_implemented(self):
-        print("Not implemented yet.")
-# presentation/screens/update_entries_screen.py
+    
 
 
     def _on_refresh_parking(self):

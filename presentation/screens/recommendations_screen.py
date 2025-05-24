@@ -87,8 +87,8 @@ class RecommendationsScreen(ctk.CTkFrame):
             "gssn_id":               "GSSN",
             "dealership_name":       "Name",
             "locality":              "Ortschaft",
-            "car_model_name":        "Auto Model",
             "parking_type":          "Parkplatz",
+            "car_model_name":        "Auto Model",
             "note":                  "Notiz",
             "recommendation_source": "Automatisch / Manuell"
         }

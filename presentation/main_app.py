@@ -6,6 +6,8 @@ from presentation.screens.start_screen import StartScreen
 from presentation.screens.recommendations_screen import RecommendationsScreen
 from presentation.screens.update_entries_screen import UpdateEntriesScreen
 from presentation.screens.change_car_model_screen import ChangeCarModelScreen
+from presentation.screens.update_dealerships_screen import UpdateDealershipsScreen
+#from presentation.screens.add_dealership_screen import AddDealershipScreen
 
 
 from core.recommendations_service import RecommendationService
@@ -44,7 +46,9 @@ class MainApp(ctk.CTk):
             StartScreen,
             RecommendationsScreen,
             UpdateEntriesScreen,
-            ChangeCarModelScreen
+            ChangeCarModelScreen,
+            UpdateDealershipsScreen,
+            #AddDealershipScreen
             
 
             
