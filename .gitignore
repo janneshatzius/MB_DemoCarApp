@@ -12,3 +12,8 @@ venv/
 Thumbs.db
 
 .pytest_cache/
+
+# ignore PyInstaller build outputs
+dist/
+build/
+*.spec
