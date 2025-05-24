@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 
 
@@ -10,7 +11,12 @@ ASSETS_DIR = BASE_DIR / "assets"
 
 # ------------- Database -------------------------------
 
-DB_PATH = DATA_DIR / "TestfahrzeugeDB.accdb"
+DB_PATH = Path(
+    os.getenv(
+       "APP_DB_PATH",
+       r"\\"
+    )
+)
 
 # ------------- In-app image assets --------------------
 
