@@ -7,7 +7,7 @@ from presentation.screens.recommendations_screen import RecommendationsScreen
 from presentation.screens.update_entries_screen import UpdateEntriesScreen
 from presentation.screens.change_car_model_screen import ChangeCarModelScreen
 from presentation.screens.update_dealerships_screen import UpdateDealershipsScreen
-#from presentation.screens.add_dealership_screen import AddDealershipScreen
+from presentation.screens.add_dealership_screen import AddDealershipScreen
 
 
 from core.recommendations_service import RecommendationService
@@ -40,6 +40,9 @@ class MainApp(ctk.CTk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
+
+        self.current_screen = None
+
         # --- instantiate & grid all screens into the same cell ---
         self.frames = {}
         for Screen in (
@@ -48,7 +51,7 @@ class MainApp(ctk.CTk):
             UpdateEntriesScreen,
             ChangeCarModelScreen,
             UpdateDealershipsScreen,
-            #AddDealershipScreen
+            AddDealershipScreen
             
 
             
@@ -64,12 +67,20 @@ class MainApp(ctk.CTk):
         # show the start screen first
         self.show_frame("StartScreen")
 
+        self.bind_all("<Control-f>", self.open_find)
+
     def show_frame(self, page_name: str):
         frame = self.frames.get(page_name)
         if not frame:
             print(f"[MainApp] no such page: {page_name}")
             return
         frame.tkraise()
+        self.current_screen = frame
+
+    def open_find(self, event=None):
+        if hasattr(self.current_screen, "open_find_dialog"):
+            self.current_screen.open_find_dialog()
+
 
 
 if __name__ == "__main__":

@@ -82,19 +82,22 @@ class RecommendationsScreen(ctk.CTkFrame):
             foreground=[("selected", "white")]
         )
 
-        # Map real DataFrame keys to display names:
+    
+        # — real→pretty mapping for your data columns —
         self._col_map = {
             "gssn_id":               "GSSN",
             "dealership_name":       "Name",
             "locality":              "Ortschaft",
-            "parking_type":          "Parkplatz",
             "car_model_name":        "Auto Model",
+            "parking_type":          "Parkplatz",
             "note":                  "Notiz",
             "recommendation_source": "Automatisch / Manuell"
         }
 
-        # Use the real keys for the Treeview columns:
-        cols = list(self._col_map.keys())
+        # 1) Prepend the 'index' column
+        cols = ["index"] + list(self._col_map.keys())
+
+        # 2) Create the Treeview with that full list
         self.tree = ttk.Treeview(
             table_frame,
             columns=cols,
@@ -103,11 +106,41 @@ class RecommendationsScreen(ctk.CTkFrame):
             selectmode="browse"
         )
 
-        # Set each heading’s text from the col_map:
-        for key in cols:
-            self.tree.heading(key, text=self._col_map[key])
-            self.tree.column(key, anchor="w", width=120, stretch=True)
+        # 3) Configure the slim non-stretch index column
+        self.tree.heading("index", text="#")
+        self.tree.column(
+            "index",
+            width=40,
+            minwidth=20,
+            anchor="center",
+            stretch=False
+        )
 
+        # 4) Configure your real columns (they can stretch)
+        default_widths = {
+            "gssn_id":         80,
+            "dealership_name": 120,
+            "locality":        100,
+            "car_model_name":  120,
+            "parking_type":    80,
+            "note":            150,
+            "recommendation_source": 120
+        }
+        for key in self._col_map:
+            pretty = self._col_map[key]
+            w = default_widths.get(key, 80)
+            self.tree.heading(key, text=pretty)
+            self.tree.column(
+                key,
+                width=w,
+                minwidth=20,
+                anchor="w",
+                stretch=True
+            )
+
+        
+        self._highlighted_iids = set()
+        self.tree.tag_configure('match', background='#ffff99')
 
         # Scrollbar
         vsb = ctk.CTkScrollbar(
@@ -187,46 +220,71 @@ class RecommendationsScreen(ctk.CTkFrame):
 
 
     def populate_tree(self, df: pd.DataFrame):
-        # clear old rows
-        for iid in self.tree.get_children():
-            self.tree.delete(iid)
 
-        # insert new rows
-        for idx, row in df.iterrows():
-            values = [row[col] for col in self.tree["columns"]]
-            self.tree.insert("", "end", iid=idx, values=values)
+        self._highlighted_iids = {
+            iid for iid in self.tree.get_children()
+            if 'match' in self.tree.item(iid, 'tags')
+        }
+    # clear existing rows
+        self.tree.delete(*self.tree.get_children())
+
+    # re-insert, with a slim index column and an integer‐string iid
+        for i, (row_idx, row) in enumerate(df.iterrows(), start=1):
+            cells = [i]
+            for col in self.tree["columns"]:
+                if col == "index":
+                    continue
+
+                v = row.get(col)
+                if v is None:
+                    v = ""
+                elif isinstance(v, float) and v.is_integer():
+                    v = int(v)
+                cells.append(v)
+
+                iid = str(row_idx)
+            self.tree.insert("", "end", iid=iid, values=cells)
+
+           # re-apply the 'match' tag if this row was highlighted before
+            if iid in self._highlighted_iids:
+                self.tree.item(iid, tags=('match',))
+
+
+
 
 
     def perform_search(self):
-        raw = self.search_entry.get().strip()
+        raw = self.search_entry.get().strip().lower()
     # empty → show everything
         if not raw:
             df = self._all_recs
         else:
-        # split on commas, lowercase each term
-            terms = [t.strip().lower() for t in raw.split(",") if t.strip()]
+        # split on commas, strip & lower
+            terms = [t.strip() for t in raw.split(",") if t.strip()]
             if not terms:
                 df = self._all_recs
             else:
-            # start with no rows selected
-                mask = pd.Series(False, index=self._all_recs.index)
-
-            # for each term, OR together matches across all 4 cols
+            # start with all rows = True
+                mask = pd.Series(True, index=self._all_recs.index)
+            # for each term, require it to match at least one column
                 for term in terms:
                     term_match = (
-                    self._all_recs['gssn_id'].str.lower().eq(term) |
-                    self._all_recs['dealership_name'].str.lower().str.contains(term, na=False) |
-                    self._all_recs['locality'].str.lower().eq(term) |
-                    self._all_recs['car_model_name'].str.lower().eq(term)
-                )
-                mask |= term_match
+                        self._all_recs['gssn_id'].str.lower().eq(term) |
+                        self._all_recs['dealership_name']
+                            .str.lower()
+                            .str.contains(term, na=False) |
+                        self._all_recs['locality'].str.lower().eq(term) |
+                        self._all_recs['car_model_name'].str.lower().eq(term)
+                    )
+                # **and** together, so all terms must be satisfied
+                    mask &= term_match
 
-            # apply the union mask
-            df = self._all_recs.loc[mask]
+                df = self._all_recs.loc[mask]
 
-        # refresh your view
+    # refresh your view
         self._current_df = df
         self.populate_tree(df)
+
 
 
 
@@ -274,4 +332,59 @@ class RecommendationsScreen(ctk.CTkFrame):
 
         # refresh the tree
         self.perform_search()
+    
 
+    def open_find_dialog(self):
+        dlg = ctk.CTkToplevel(self)
+        dlg.title("Suchen")
+        dlg.geometry("320x150")
+        dlg.grab_set()
+
+        # label + entry
+        ctk.CTkLabel(dlg, text="Suchbegriff:").pack(pady=(10,0))
+        var = tk.StringVar()
+        entry = ctk.CTkEntry(dlg, textvariable=var)
+        entry.pack(pady=5, padx=10, fill="x")
+        entry.focus()
+
+        # search action
+        def on_search(event=None):
+            term = var.get().strip().lower()
+            if not term:
+                return
+            matched = []
+            for iid in self.tree.get_children():
+                vals = [str(v).lower() for v in self.tree.item(iid, 'values')]
+                if term in " ".join(vals):
+                    self.tree.item(iid, tags=('match',))
+                    matched.append(iid)
+                else:
+                    self.tree.item(iid, tags=())
+            if matched:
+                first = matched[0]
+                self.tree.selection_set(first)
+                self.tree.focus(first)
+                self.tree.see(first)
+
+        # clear highlights action
+        def on_clear(event=None):
+            for iid in self.tree.get_children():
+                self.tree.item(iid, tags=())
+            self.tree.selection_remove(self.tree.selection())
+
+        # buttons frame
+        btn_frame = ctk.CTkFrame(dlg, fg_color="transparent")
+        btn_frame.pack(pady=(10,0), padx=10, fill="x")
+
+        # Suchen button
+        ctk.CTkButton(
+            btn_frame, text="Suchen", command=on_search
+        ).pack(side="left", expand=True, fill="x", padx=(0,5))
+
+        # Markierungen löschen button
+        ctk.CTkButton(
+            btn_frame, text="Markierungen löschen", command=on_clear
+        ).pack(side="left", expand=True, fill="x", padx=(5,0))
+
+        # bind Enter to search
+        entry.bind("<Return>", on_search)

@@ -16,7 +16,7 @@ def get_past_recommendations(years):
     return df
 
 
-def get_recommendations_by_dealership(conn, dealership_id):
+def get_recommendations_by_dealership(dealership_id):
     conn = get_connection()
     cur = conn.cursor()
     sql = """
@@ -114,7 +114,8 @@ def insert_recommendations( recommendations):
     conn.commit()
     conn.close()
 
-def delete_recommendations_for_year(conn, year: int):
+def delete_recommendations_for_year(year: int):
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute(
         "DELETE FROM Recommendation WHERE allocation_year = ?",
@@ -122,11 +123,12 @@ def delete_recommendations_for_year(conn, year: int):
     )
     conn.commit()
 
-def move_recommendations_to_past(conn, year: int):
+def move_recommendations_to_past(year: int):
     """
     Copy all Recommendation rows for a given year into Past_Recommendations
     (dealership_id, gssn_id, allocation_year, car_model_name) and then delete them.
     """
+    conn = get_connection()
     cur = conn.cursor()
 
     sql_insert = """

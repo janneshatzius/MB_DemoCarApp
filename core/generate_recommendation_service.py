@@ -1,5 +1,4 @@
 import random
-from data.dbconnect import get_connection
 import pandas as pd
 
 from data.car_repository import (
@@ -21,11 +20,7 @@ class GenerateRecommendationService:
 
     @staticmethod
     def list_for_dealership(dealership_id):
-        conn = get_connection()
-        try:
-            recs = get_recommendations_by_dealership(conn, dealership_id)
-        finally:
-            conn.close()
+        recs = get_recommendations_by_dealership( dealership_id)
         return recs
 
 
@@ -35,9 +30,8 @@ class GenerateRecommendationService:
         Generate and insert recommendations for exactly target_year.
         Returns how many were inserted.
         """
-        conn = get_connection()
-        move_recommendations_to_past(conn, target_year-1)
-        delete_recommendations_for_year(conn, target_year-1)
+        move_recommendations_to_past(target_year-1)
+        delete_recommendations_for_year(target_year-1)
         hist_years = [target_year - 2, target_year - 1]
 
         # fetch all necessary data

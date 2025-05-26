@@ -89,7 +89,8 @@ def delete_car_model(model_name: str):
     conn.close()
 
 
-def get_all_model_names(conn):
+def get_all_model_names():
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT model_name FROM Car_Model")
     return [row[0] for row in cur.fetchall()]

@@ -1,11 +1,13 @@
+# presentation/screens/add_dealership_screen.py
+
 import tkinter as tk
-from tkinter import ttk
-import pandas as pd
+from tkinter import messagebox
 import customtkinter as ctk
 from PIL import Image
 
-from core.dealerhip_service import DealershipService
+from core.dealership_service import DealershipService
 from config import ICON_HOME, ICON_BACKPAGE
+
 
 class AddDealershipScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -13,231 +15,186 @@ class AddDealershipScreen(ctk.CTkFrame):
         self.controller = controller
         self.configure(fg_color="#A9A9A9")
 
-
-        # === Top header with Home + "Add Agentenstandort" button ===
+        # === Header with Back + Home ===
         header = ctk.CTkFrame(self, fg_color="transparent")
-        header.grid(
-            row=0, column=0, columnspan=2,
-            sticky="ew",
-            padx=10, pady=(10,0)
-        )
-        header.grid_columnconfigure(0, weight=0)
-        header.grid_columnconfigure(1, weight=0)
-        header.grid_columnconfigure(2, weight=1)
-        header.grid_columnconfigure(3, weight=0)
-
-        # Home button
+        header.pack(fill="x", pady=10, padx=10)
+        
+        
+        # spacer
+        header.pack_propagate(False)
+        header.configure(height=40)
+        # home
         home_img = ctk.CTkImage(
-            light_image=Image.open(ICON_HOME),
-            dark_image=Image.open(ICON_HOME),
-            size=(25,25)
+            Image.open(ICON_HOME), Image.open(ICON_HOME), size=(25,25)
         )
-        home_btn = ctk.CTkButton(
+        ctk.CTkButton(
             header, image=home_img, text="",
             fg_color="transparent", hover_color="#888888",
-            width=40, height=40,
+            width=30, height=30,
             command=lambda: controller.show_frame("StartScreen")
+        ).pack(side="left")
+        # back
+        back_img = ctk.CTkImage(
+            Image.open(ICON_BACKPAGE), Image.open(ICON_BACKPAGE), size=(25,25)
         )
-        home_btn.grid(row=0, column=0, sticky="w")
-
-        # Back button
-        backpage_img = ctk.CTkImage(
-            light_image=Image.open(ICON_BACKPAGE),
-            dark_image=Image.open(ICON_BACKPAGE),
-            size=(25,25)
-        )
-        backpage_btn = ctk.CTkButton(
-            header, image=backpage_img, text="",
+        ctk.CTkButton(
+            header, image=back_img, text="",
             fg_color="transparent", hover_color="#888888",
-            width=40, height=40,
-            command=lambda: controller.show_frame("UpdateDealershipScreen")
-        )
-        backpage_btn.grid(row=0, column=1, sticky="w", padx=(10,0))
+            width=30, height=30,
+            command=lambda: controller.show_frame("UpdateDealershipsScreen")
+        ).pack(side="left")
 
-        # Add-Agentenstandort button
-        add_loc_btn = ctk.CTkButton(
-            header,
-            text="Agentenstandort hinzufügen",
-            command=lambda: controller.show_frame("AddAgentenstandortScreen")
-        )
-        add_loc_btn.grid(row=0, column=3, sticky="e")
+        # === Form container ===
+        form = ctk.CTkFrame(self, fg_color="#D3D3D3")
+        form.place(relx=0.5, rely=0.5, anchor="center")
 
-        # === Layout ===
-        self.grid_columnconfigure(0, weight=3)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        def labeled(widget, **grid_opts):
+            """Helper to pack with uniform padding."""
+            widget.grid(padx=10, pady=5, sticky="ew", **grid_opts)
 
-        # — Left: dealer table —
-        table_frame = ctk.CTkFrame(self, fg_color="#D3D3D3")
-        table_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
+        row = 0
+        ctk.CTkLabel(form, text="Neuen Händler hinzufügen", font=("Arial", 18, "bold"))\
+            .grid(row=row, column=0, columnspan=2, pady=(0,20))
+        row += 1
 
-        # Style the Treeview to match CTk
-        style = ttk.Style()
-        style.theme_use("default")
-        style.configure(
-            "Custom.Treeview",
-            background="#D3D3D3",
-            fieldbackground="#D3D3D3",
-            foreground="black",
-            rowheight=24
-        )
-        style.configure(
-            "Custom.Treeview.Heading",
-            background="#A9A9A9",
-            foreground="white",
-            relief="flat"
-        )
-        style.map(
-            "Custom.Treeview",
-            background=[("selected", "#888888")],
-            foreground=[("selected", "white")]
-        )
+        # GSSN ID
+        ctk.CTkLabel(form, text="GSSN ID:").grid(row=row, column=0, sticky="w")
+        self.entry_gssn = ctk.CTkEntry(form)
+        labeled(self.entry_gssn, row=row, column=1)
+        row += 1
 
-        self._col_map = {
-            "gssn_id": "GSSN",
-            "HB": "HB",
-            "VFNR": "VFNR",
-            "dealership_name": "Name",
-            "locality": "Ort",
-            "FS_Value": "FS Wert",
-            "gssn_company": "GSSN Company",
-            "status": "Status",
-            "note": "Notiz"
-        }
-        cols = list(self._col_map.keys())
+        # Dealership Name
+        ctk.CTkLabel(form, text="Name:").grid(row=row, column=0, sticky="w")
+        self.entry_name = ctk.CTkEntry(form)
+        labeled(self.entry_name, row=row, column=1)
+        row += 1
 
-        self.tree = ttk.Treeview(
-            table_frame,
-            columns=cols,
-            show="headings",
-            style="Custom.Treeview",
-            selectmode="browse"
-        )
-       
-        col_widths = {
-            "dealership_id":   50,
-            "dealership_name": 120,
-            "locality":        100,
-            "FS_Value":        60,
-            "gssn_id":         80
-        }
-        for key in cols:
-            pretty = self._col_map[key]
-            w = col_widths.get(key, 80)   # default to 80 i
-            self.tree.heading(key, text=pretty)
-            self.tree.column(
-                key,
-                anchor="w",
-                width=w,
-                minwidth=20,   # don’t allow it to shrink below 20px
-                stretch=True  # keep it fixed at `width`
-            )
+        # HB
+        ctk.CTkLabel(form, text="HB:").grid(row=row, column=0, sticky="w")
+        self.entry_hb = ctk.CTkEntry(form)
+        labeled(self.entry_hb, row=row, column=1)
+        row += 1
 
-        vsb = ctk.CTkScrollbar(
-            table_frame, orientation="vertical",
-            command=self.tree.yview
-        )
-        self.tree.configure(yscrollcommand=vsb.set)
-        self.tree.pack(side="left", fill="both", expand=True)
-        vsb.pack(side="right", fill="y")
+        # VFNR
+        ctk.CTkLabel(form, text="VFNR:").grid(row=row, column=0, sticky="w")
+        self.entry_vfnr = ctk.CTkEntry(form)
+        labeled(self.entry_vfnr, row=row, column=1)
+        row += 1
 
-        self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+        # Locality
+        ctk.CTkLabel(form, text="Ortschaft:").grid(row=row, column=0, sticky="w")
+        self.entry_locality = ctk.CTkEntry(form)
+        labeled(self.entry_locality, row=row, column=1)
+        row += 1
 
-        # — Right: dealership detail form (empty for now) —
-        self.detail = ctk.CTkFrame(self, fg_color="#D3D3D3", width=200)
-        self.detail.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
-        self._build_detail_form()
+        # FS_Value dropdown
+        ctk.CTkLabel(form, text="FS-Kategorie:").grid(row=row, column=0, sticky="w")
+        fs_values = ["P2","P3","P4","P5","V2","V3","V4","V5"]
+        self.var_fs = tk.StringVar(value=fs_values[0])
+        self.opt_fs = ctk.CTkOptionMenu(form, variable=self.var_fs, values=fs_values)
+        labeled(self.opt_fs, row=row, column=1)
+        row += 1
 
-        # — Button to go to the “Add Agentenstandort” screen —
-        add_loc_btn = ctk.CTkButton(
-            self,
-            text="Agentenstandort hinzufügen",
-            command=lambda: controller.show_frame("AddDealershipScreen")
-        )
-        add_loc_btn.grid(
-            row=0, column=0, columnspan=2,
-            sticky="e",   # align right, so it sits above the detail pane
-            padx=10, pady=(20, 0)
-        )
+        # Function dropdown
+        ctk.CTkLabel(form, text="Funktion:").grid(row=row, column=0, sticky="w")
+        funcs = ["P","PT","V"]
+        self.var_func = tk.StringVar(value=funcs[0])
+        self.opt_func = ctk.CTkOptionMenu(form, variable=self.var_func, values=funcs)
+        labeled(self.opt_func, row=row, column=1)
+        row += 1
 
-        # === Load & populate ===
-        self._dealers = DealershipService.list_all_dealerships()
-        self.populate_tree(self._dealers)
-
-        home_btn.lift()
-
-
-    def _build_detail_form(self):
-        ctk.CTkLabel(
-            self.detail,
-            text="Händler Details",
-            font=("Arial", 16, "bold")
-        ).pack(pady=(0,20))
-
-        # Status dropdown
-        ctk.CTkLabel(self.detail, text="Status:").pack(anchor="w", padx=10, pady=(10,0))
-        self.var_status = tk.StringVar(value="active")
-        self.opt_status = ctk.CTkOptionMenu(
-            self.detail,
-            variable=self.var_status,
-            values=["active", "inactive"]
-        )
-        self.opt_status.pack(fill="x", padx=10, pady=5)
-
-        # Note entry
-        ctk.CTkLabel(self.detail, text="Notiz:").pack(anchor="w", padx=10, pady=(10,0))
-        self.txt_note = ctk.CTkEntry(self.detail, placeholder_text="Hier Notiz eingeben…")
-        self.txt_note.pack(fill="x", padx=10, pady=(0,10))
+        # GSSN Company
+        ctk.CTkLabel(form, text="GSSN Company:").grid(row=row, column=0, sticky="w")
+        self.entry_company = ctk.CTkEntry(form)
+        labeled(self.entry_company, row=row, column=1)
+        row += 1
 
         # Save button
         ctk.CTkButton(
-            self.detail,
-            text="Speichern",
-            command=self._on_save
-        ).pack(pady=10)
-
-
-    def populate_tree(self, df: pd.DataFrame):
-        for iid in self.tree.get_children():
-            self.tree.delete(iid)
-
-        for idx, row in df.iterrows():
-            values = [row.get(col, "") for col in self.tree["columns"]]
-            self.tree.insert("", "end", iid=idx, values=values)
-
-
-    def _on_tree_select(self, event):
-        sel = self.tree.selection()
-        if not sel:
-            return
-        idx = int(sel[0])
-        rec = self._dealers.loc[idx].to_dict()
-        self._selected = rec
-
-        # populate status & note
-        self.var_status.set(rec.get('status', 'active'))
-        note_text = rec.get('note') or ""
-        self.txt_note.delete(0, tk.END)
-        self.txt_note.insert(0, note_text)
-
+            form, text="Speichern", command=self._on_save
+        ).grid(row=row, column=0, columnspan=2, pady=(20,0))
 
     def _on_save(self):
-        rec = getattr(self, "_selected", None)
-        if not rec:
+        # gather inputs
+        gssn    = self.entry_gssn.get().strip()
+        name    = self.entry_name.get().strip()
+        hb      = self.entry_hb.get().strip()
+        vfnr    = self.entry_vfnr.get().strip()
+        loc     = self.entry_locality.get().strip()
+        fs_val  = self.var_fs.get()
+        func    = self.var_func.get()
+        company = self.entry_company.get().strip()
+
+        # basic validation
+        if not all([gssn, name, hb, vfnr, loc, company]):
+            messagebox.showerror("Fehler", "Bitte alle Felder ausfüllen.")
             return
 
-        dealer_id = rec["dealership_id"]
-        status    = self.var_status.get()
-        note      = self.txt_note.get().strip()
+        # 1) find or create group
+        group = DealershipService.get_group_by_company(company)
+        if group:
+            group_id = group["DG_ID"]
+        else:
+            # ask for VFNRHB for new group
+            vfnrhb = self._prompt_new_group(company)
+            if not vfnrhb:
+                return
+            group_id = DealershipService.create_group(company, vfnrhb)["DG_ID"]
 
-        # call your service to persist
-        DealershipService.update_dealership(dealer_id, status, note)
+        # 2) create the dealership (status='active', note='')
+        try:
+            DealershipService.create_dealership(
+                gssn_id=gssn,
+                name=name,
+                HB=int(hb),
+                VFNR=int(vfnr),
+                locality=loc,
+                fs_value=fs_val,
+                function=func,
+                group_id=group_id,
+                gssn_company=company
+            )
+        except Exception as e:
+            messagebox.showerror("Fehler beim Speichern", str(e))
+            return
+        
+        upd = self.controller.frames["UpdateDealershipsScreen"]
+        upd._dealers = DealershipService.list_all_dealerships()
+        upd.populate_tree(upd._dealers)
 
-        # update in-memory DF
-        df_idx = self._dealers.index[self._dealers["dealership_id"] == dealer_id][0]
-        self._dealers.at[df_idx, 'status'] = status
-        self._dealers.at[df_idx, 'note']   = note
+        messagebox.showinfo("Erfolg", "Händler erfolgreich hinzugefügt.")
+        
+        
+        
 
-        # refresh table
-        self.populate_tree(self._dealers)
+    def _prompt_new_group(self, company) -> str:
+        """Popup to enter a new VFNRHB for a brand-new group."""
+        popup = ctk.CTkToplevel(self)
+        popup.title("Neue Händlergruppe")
+        popup.geometry("300x150")
+        ctk.CTkLabel(
+            popup,
+            text=f"Händlergruppe '{company}' existiert nicht.",
+            font=("Arial", 12)
+        ).pack(pady=(10,5))
+        ctk.CTkLabel(popup, text="Bitte VFNRHB eingeben:").pack(pady=(5,0))
+        var = tk.StringVar()
+        entry = ctk.CTkEntry(popup, textvariable=var)
+        entry.pack(pady=5, padx=20, fill="x")
+        result = {}
 
+        def on_ok():
+            val = var.get().strip()
+            if not val:
+                messagebox.showerror("Fehler", "VFNRHB darf nicht leer sein.")
+                return
+            result["vfnrhb"] = val
+            popup.destroy()
+
+        ctk.CTkButton(popup, text="OK", command=on_ok).pack(pady=(10,0))
+        popup.grab_set()
+        popup.wait_window()
+        return result.get("vfnrhb", "")
+
+
+      

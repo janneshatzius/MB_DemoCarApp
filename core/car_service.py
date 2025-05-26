@@ -1,4 +1,3 @@
-from data.dbconnect import get_connection
 import pandas as pd
 from data.car_repository import (
     fetch_all_types,
@@ -84,8 +83,4 @@ class CarModelService:
         delete_car_model(model_name)
     @staticmethod
     def all_models():
-        conn = get_connection()
-        try:
-            return get_all_model_names(conn)
-        finally:
-            conn.close()
+        return get_all_model_names()

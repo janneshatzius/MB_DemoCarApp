@@ -4,8 +4,8 @@ import pandas as pd
 import customtkinter as ctk
 from PIL import Image
 
-from core.dealerhip_service import DealershipService
-from config import ICON_HOME
+from core.dealership_service import DealershipService
+from config import ICON_HOME, ICON_BACKPAGE
 
 class UpdateDealershipsScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -40,11 +40,27 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
             command=lambda: controller.show_frame("StartScreen")
         ).grid(row=0, column=0, sticky="w")
 
+         # === Backpage ===
+        back_img = ctk.CTkImage(
+            light_image=Image.open(ICON_BACKPAGE),
+            dark_image=Image.open(ICON_BACKPAGE),
+            size=(25,25)
+        )
+        ctk.CTkButton(
+            header, image=back_img, text="",
+            fg_color="transparent", hover_color="#888888",
+            width=40, height=40,
+            command=lambda: controller.show_frame("UpdateEntriesScreen")
+        ).grid(row=0, column=1, sticky="w")
+
+
+
+
         # -- Add-Agentenstandort button --
         ctk.CTkButton(
             header,
             text="Agentenstandort hinzufügen",
-            command=lambda: controller.show_frame("AddAgentenstandortScreen")
+            command=lambda: controller.show_frame("AddDealershipScreen")
         ).grid(row=0, column=2, sticky="e")
 
         # === row 1: content ===
@@ -76,7 +92,7 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
             foreground=[("selected", "white")]
         )
 
-        # real→pretty column mapping
+        
         self._col_map = {
             "gssn_id":         "GSSN",
             "HB":              "HB",
@@ -88,33 +104,38 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
             "status":          "Status",
             "note":            "Notiz"
         }
-        cols = list(self._col_map.keys())
 
-        # create the Treeview
+        cols = ["index"] + list(self._col_map.keys())
         self.tree = ttk.Treeview(
-            table_frame,
-            columns=cols,
+            table_frame,              
+            columns=cols,             
             show="headings",
             style="Custom.Treeview",
             selectmode="browse"
         )
-        # configure each column
-        default_widths = {
-            "dealership_id":   50,
-            "gssn_id":         80,
-            "dealership_name": 120,
-            "locality":        100,
-            "FS_Value":        60
-        }
-        for key in cols:
-            pretty = self._col_map[key]
-            w = default_widths.get(key, 80)
-            self.tree.heading(key, text=pretty)
-            self.tree.column(key,
-                             width=w,
-                             minwidth=20,
-                             anchor="w",
-                             stretch=True)
+        self.tree.tag_configure('match', background='#ffff99')
+
+
+        self.tree.heading("index", text="#")
+        self.tree.column(
+            "index",
+            width=40,
+            minwidth=20,
+            anchor="center",
+            stretch=False
+        )
+
+# 2) configure your real columns by iterating only _col_map
+        for data_key, pretty in self._col_map.items():
+            self.tree.heading(data_key, text=pretty)
+            self.tree.column(
+                data_key,
+                width=100,    # or your per-column widths
+                minwidth=20,
+                anchor="w",
+                stretch=True
+            )
+
 
         vsb = ctk.CTkScrollbar(
             table_frame, orientation="vertical",
@@ -181,23 +202,30 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
 
 
     def populate_tree(self, df: pd.DataFrame):
-    # clear existing rows
-        for iid in self.tree.get_children():
-            self.tree.delete(iid)
+    # 1) clear existing rows
+        self.tree.delete(*self.tree.get_children())
 
-    # re-insert
-        for idx, row in df.iterrows():
-            values = []
+    # 2) re-insert, with slim non-stretch 'index' column first
+        for i, (idx, row) in enumerate(df.iterrows(), start=1):
+            cells = [i]  # this goes into the 'index' column
+
             for col in self.tree["columns"]:
+                if col == "index":
+                    continue
+
                 v = row.get(col)
-            # empty out None
+                # empty out None
                 if v is None:
                     v = ""
-            # also trim .0 from integer floats
+                # trim .0 from integer-valued floats
                 elif isinstance(v, float) and v.is_integer():
                     v = int(v)
-                values.append(v)
-            self.tree.insert("", "end", iid=idx, values=values)
+
+                cells.append(v)
+
+            # use the real DataFrame index as iid if you need it
+            self.tree.insert("", "end", iid=idx, values=cells)
+
 
 
 
@@ -236,3 +264,60 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
         self._dealers.at[df_idx, "status"] = status
         self._dealers.at[df_idx, "note"]   = note
         self.populate_tree(self._dealers)
+
+    def open_find_dialog(self):
+        dlg = ctk.CTkToplevel(self)
+        dlg.title("Suchen")
+        dlg.geometry("320x150")
+        dlg.grab_set()
+
+        # label + entry
+        ctk.CTkLabel(dlg, text="Suchbegriff:").pack(pady=(10,0))
+        var = tk.StringVar()
+        entry = ctk.CTkEntry(dlg, textvariable=var)
+        entry.pack(pady=5, padx=10, fill="x")
+        entry.focus()
+
+        # search action
+        def on_search(event=None):
+            term = var.get().strip().lower()
+            if not term:
+                return
+            matched = []
+            for iid in self.tree.get_children():
+                vals = [str(v).lower() for v in self.tree.item(iid, 'values')]
+                if term in " ".join(vals):
+                    self.tree.item(iid, tags=('match',))
+                    matched.append(iid)
+                else:
+                    self.tree.item(iid, tags=())
+            if matched:
+                first = matched[0]
+                self.tree.selection_set(first)
+                self.tree.focus(first)
+                self.tree.see(first)
+
+        # clear highlights action
+        def on_clear(event=None):
+            for iid in self.tree.get_children():
+                self.tree.item(iid, tags=())
+            self.tree.selection_remove(self.tree.selection())
+
+        # buttons frame
+        btn_frame = ctk.CTkFrame(dlg, fg_color="transparent")
+        btn_frame.pack(pady=(10,0), padx=10, fill="x")
+
+        # Suchen button
+        ctk.CTkButton(
+            btn_frame, text="Suchen", command=on_search
+        ).pack(side="left", expand=True, fill="x", padx=(0,5))
+
+        # Markierungen löschen button
+        ctk.CTkButton(
+            btn_frame, text="Markierungen löschen", command=on_clear
+        ).pack(side="left", expand=True, fill="x", padx=(5,0))
+
+        # bind Enter to search
+        entry.bind("<Return>", on_search)
+
+

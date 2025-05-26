@@ -4,7 +4,6 @@ from data.recommendations_repository import (
     update_recommendation
 )
 from data.car_repository import get_car_models_by_type
-from data.dbconnect import get_connection
 
 class RecommendationService:
     AUTO_SOURCE = 1
@@ -21,16 +20,9 @@ class RecommendationService:
 
     @staticmethod
     def save_changes(rec_id: int, new_model_id: int, new_model_name: str, note: str):
-        conn = get_connection()
-        try:
-            # pass conn *first*, then the other four parameters
-            update_recommendation(conn,
+            update_recommendation(
                                   rec_id,
                                   new_model_id,
                                   new_model_name,
                                   note)
-        except Exception as e:
-            # print to terminal instead of messagebox
-            print("[ERROR] updating recommendation:", e)
-        finally:
-            conn.close()
+        

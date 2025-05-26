@@ -40,7 +40,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
         }
 
         buttons = [
-            ("Agentenstandorte erneuern", lambda: controller.show_frame("UpdateDealershipsScreen")),
+            ("Agentenstandorte", lambda: controller.show_frame("UpdateDealershipsScreen")),
             ("Parkplätze erneuern", self._on_refresh_parking),
             ("Automodelle anpassen", lambda: controller.show_frame("ChangeCarModelScreen")),
             

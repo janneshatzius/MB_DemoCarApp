@@ -1,5 +1,4 @@
 from data.dbconnect import get_connection
-import traceback
 import pandas as pd
 
 
@@ -30,113 +29,131 @@ def get_all_dealerships():
         return pd.DataFrame(columns=cols)
     
 
-
-
-
-def update_dealership(conn, dealer_id, status, note):
-    cur = conn.cursor()
-    sql = """
-    UPDATE [Dealership]
-       SET [status]             = ?,
-          [note]                  = ?
-     WHERE [dealership_id]    = ?
+def update_dealership_status(dealership_id: int, status: str, note: str) -> None:
     """
-    
-    params = (
-        status,
-        note,
-        dealer_id
-    )
-    cur.execute(sql, params)
-    conn.commit()
-
-
-
-def insert_dealership(dealership):
+    Updates the status and note for a given dealership_id.
+    """
     conn = get_connection()
-    cur = conn.cursor()
-    sql = """
-    INSERT INTO Dealership
-    ([gssn_id],
-    [dealership_name],
-    [HB],
-    [FS],
-    [VFNR],
-    [locality],
-    [function],
-    [FS_Value],
-    [group_id],
-    [gssn_company],
-    [status],
-    [note]
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-    """
-
-    params = (
-        dealership["gssn_id"],
-        dealership["dealership_name"],
-        dealership["HB"],
-        dealership["FS"],
-        dealership["VFNR"],
-        dealership["locality"],
-        dealership["function"],
-        dealership["FS_Value"],
-        dealership["group_id"],
-        dealership["gssn_company"],
-        dealership["status"],
-        dealership["note"]
-    )
-
     try:
-        cur.execute(sql, params)
-    except Exception as e:
-            # Print everything for debugging
-        print("\n--- Failed to insert dealership ---")
-        print("SQL:", sql.strip())
-        print("Parameters:", params)
-        print("Parameter types:",
-              [type(x).__name__ for x in params])
-        print("Error:")
-        traceback.print_exc()
-        raise
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE [Dealership]
+               SET [status] = ?,
+                    [note] = ?
+             WHERE [dealership_id] = ?
+            """,
+            (status, note, dealership_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
 
 
-    conn.commit()
-    conn.close()
-    
-
-
-def insert_dealership_group(dgroup):
+def find_group_by_company(company: str) -> dict | None:
+    """
+    Looks up a dealership group by its gssn_company name.
+    Returns a dict with keys 'DG_ID','gssn_company','vfnrhb', or None if not found.
+    """
     conn = get_connection()
-    cur = conn.cursor()
-    sql = """
-    INSERT INTO DealershipGroup
-    ([gssn_company],
-         [vfnrhb])
-            VALUES (?,?)
-    """
-
-    params = (
-        dgroup["gssn_company"],
-        dgroup["vfnrhb"]
-    )
-
     try:
-        cur.execute(sql, params)
-    except Exception as e:
-            # Print everything for debugging
-        print("\n--- Failed to insert dealership ---")
-        print("SQL:", sql.strip())
-        print("Parameters:", params)
-        print("Parameter types:",
-              [type(x).__name__ for x in params])
-        print("Error:")
-        traceback.print_exc()
-        raise
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT DG_ID, gssn_company, vfnrhb
+              FROM DealershipGroup
+             WHERE gssn_company = ?
+            """,
+            (company,)
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        cols = [col[0] for col in cur.description]
+        return dict(zip(cols, row))
+    finally:
+        conn.close()
 
 
-    conn.commit()
-    conn.close()
+def insert_dealership_group(company: str, vfnrhb: str) -> dict:
+    """
+    Inserts a new row into DealershipGroup and returns
+    a dict with the new 'DG_ID', 'gssn_company', and 'vfnrhb'.
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT INTO DealershipGroup (gssn_company, vfnrhb)
+            VALUES (?, ?)
+            """,
+            (company, vfnrhb)
+        )
+        conn.commit()
+
+        # Fetch the generated identity (works in Access via @@IDENTITY)
+        cur.execute("SELECT @@IDENTITY AS DG_ID")
+        dg_id = cur.fetchone()[0]
+
+        return {"DG_ID": dg_id, "gssn_company": company, "vfnrhb": vfnrhb}
+    finally:
+        conn.close()
 
 
-
+def insert_dealership(
+    gssn_id: str,
+    dealership_name: str,
+    HB: int,
+    FS: int,
+    VFNR: int,
+    locality: str,
+    function: str,
+    FS_Value: str,
+    group_id: int,
+    gssn_company: str,
+    status: str,
+    note: str
+) -> None:
+    """
+    Inserts a new dealership row with all required fields.
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT INTO [Dealership]
+               ([gssn_id],
+                [dealership_name],
+                [HB],
+                [FS],
+                [VFNR],
+                [locality],
+                [function],      
+                [FS_Value],
+                [group_id],
+                [gssn_company],
+                [status],
+                [note])
+            VALUES
+               (?,?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                gssn_id,
+                dealership_name,
+                HB,
+                FS,
+                VFNR,
+                locality,
+                function,
+                FS_Value,
+                group_id,
+                gssn_company,
+                status,
+                note
+            )
+        )
+        conn.commit()
+    finally:
+        conn.close()

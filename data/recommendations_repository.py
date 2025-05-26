@@ -40,7 +40,8 @@ def get_all_recommendations_df():
 
 
 
-def update_recommendation(conn, rec_id, new_model_id, new_model_name, note):
+def update_recommendation(rec_id, new_model_id, new_model_name, note):
+    conn = get_connection()
     cur = conn.cursor()
     sql = """
     UPDATE [Recommendation]
