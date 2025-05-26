@@ -45,7 +45,7 @@ class AddDealershipScreen(ctk.CTkFrame):
         ).pack(side="left")
 
         # === Form container ===
-        form = ctk.CTkFrame(self, fg_color="#D3D3D3")
+        form = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         form.place(relx=0.5, rely=0.5, anchor="center")
 
         def labeled(widget, **grid_opts):
