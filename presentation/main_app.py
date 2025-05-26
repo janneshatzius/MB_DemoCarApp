@@ -23,7 +23,7 @@ class MainApp(ctk.CTk):
 
         # --- window setup ---
         self.title(WINDOW_TITLE)
-        self.geometry("1024x768")
+        self.geometry(f"{DEFAULT_WIDTH}x{DEFAULT_HEIGHT}")
 
 
         self.recs_df = RecommendationService.list_all_recommendations()
