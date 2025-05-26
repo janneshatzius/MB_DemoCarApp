@@ -18,7 +18,7 @@ def create_all_parking_spots():
     to_delete = []
     spots      = []
 
-    for d in dealers:
+    for d in dealers.to_dict("records"):
         did    = d["dealership_id"]
         fs_val = d["FS_Value"]
         gssn   = d["gssn_id"]

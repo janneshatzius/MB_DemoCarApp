@@ -388,3 +388,17 @@ class RecommendationsScreen(ctk.CTkFrame):
 
         # bind Enter to search
         entry.bind("<Return>", on_search)
+
+
+    def reload_data(self):
+        
+        # 1) grab fresh data
+            self._all_recs = RecommendationService.list_all_recommendations()
+
+        # 2) if the user currently has a search term, re-apply it…
+            raw = self.search_entry.get().strip()
+            if raw:
+                self.perform_search()
+            else:
+            # otherwise show top 5 again
+                self.populate_tree(self._all_recs)
