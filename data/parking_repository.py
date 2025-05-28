@@ -132,3 +132,129 @@ def insert_parking_spots_bulk(spots: list[tuple]):
         conn.commit()
     finally:
         conn.close()
+
+
+# — FS_CATEGORY CRUD —
+
+def list_fs_categories() -> list[dict]:
+    """
+    Returns a list of existing FS categories, each as {"fs_category": "V2"}.
+    """
+    conn = get_connection()
+    try:
+        df = pd.read_sql_query(
+            "SELECT [fscategory] AS [fs_category] "
+            "  FROM [FS_Category] "
+            " ORDER BY [fscategory]",
+            conn
+        )
+        return df.to_dict("records")
+    finally:
+        conn.close()
+
+
+def add_fs_category(fs: str) -> None:
+    """
+    Inserts a new FS category.
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO [FS_Category] ([fscategory]) VALUES (?)",
+            (fs,)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+# — PARKING_CATEGORY list (for editor) —
+
+def list_parking_categories() -> list[dict]:
+    """
+    Returns a list of all parking categories:
+      [{"parkingcategory_id": 1, "category_name": "Private"}, …]
+    """
+    conn = get_connection()
+    try:
+        df = pd.read_sql_query(
+            "SELECT [parkingcategory_id], [category_name] "
+            "  FROM [Parking_Category] "
+            " ORDER BY [parkingcategory_id]",
+            conn
+        )
+        return df.to_dict("records")
+    finally:
+        conn.close()
+
+
+# — PARKING_ALLOCATION CRUD —
+
+def list_allocation_for_fs(fs: str) -> list[tuple[int,int]]:
+    """
+    Returns a list of (parking_category_id, quantity) for this fs_category.
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT [parking_category], [quantity] "
+            "  FROM [Parking_Allocation] "
+            " WHERE [fs_category] = ?",
+            (fs,)
+        )
+        return cur.fetchall()  # list of (int, int)
+    finally:
+        conn.close()
+
+def insert_allocation(fs: str, parking_cat: int, qty: int) -> None:
+    """
+    Inserts a new row into Parking_Allocation.
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO [Parking_Allocation] "
+            "  ([fs_category], [parking_category], [quantity]) "
+            "VALUES (?,?,?)",
+            (fs, parking_cat, qty)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+def update_allocation(fs: str, parking_cat: int, qty: int) -> None:
+    """
+    Updates the quantity for an existing Parking_Allocation row.
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE [Parking_Allocation] "
+            "   SET [quantity] = ? "
+            " WHERE [fs_category] = ? AND [parking_category] = ?",
+            (qty, fs, parking_cat)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+def delete_allocation(fs: str, parking_cat: int) -> None:
+    """
+    Deletes a specific Parking_Allocation row.
+    """
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "DELETE FROM [Parking_Allocation] "
+            " WHERE [fs_category] = ? AND [parking_category] = ?",
+            (fs, parking_cat)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+

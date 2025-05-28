@@ -9,6 +9,7 @@ from presentation.screens.update_entries_screen import UpdateEntriesScreen
 from presentation.screens.change_car_model_screen import ChangeCarModelScreen
 from presentation.screens.update_dealerships_screen import UpdateDealershipsScreen
 from presentation.screens.add_dealership_screen import AddDealershipScreen
+from presentation.screens.edit_fs_screen import EditFSScreen
 
 
 from core.recommendations_service import RecommendationService
@@ -25,7 +26,7 @@ class MainApp(ctk.CTk):
         # --- window setup ---
         self.title(WINDOW_TITLE)
         self.geometry(f"{DEFAULT_WIDTH}x{DEFAULT_HEIGHT}")
-        self.state('zoomed')
+        
 
 
         self.recs_df = RecommendationService.list_all_recommendations()
@@ -53,7 +54,8 @@ class MainApp(ctk.CTk):
             UpdateEntriesScreen,
             ChangeCarModelScreen,
             UpdateDealershipsScreen,
-            AddDealershipScreen
+            AddDealershipScreen,
+            EditFSScreen
             
 
             

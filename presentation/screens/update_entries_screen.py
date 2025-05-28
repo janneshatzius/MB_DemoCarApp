@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from PIL import Image
 from config import ICON_HOME
-from core.parking_service import create_all_parking_spots
+from core.parking_service import ParkingService
 
 class UpdateEntriesScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -40,6 +40,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
         }
 
         buttons = [
+            ("FS Zuweisung", lambda: controller.show_frame("EditFSScreen")),
             ("Agentenstandorte", lambda: controller.show_frame("UpdateDealershipsScreen")),
             ("Parkplätze erneuern", self._on_refresh_parking),
             ("Automodelle anpassen", lambda: controller.show_frame("ChangeCarModelScreen")),
@@ -53,7 +54,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
 
 
     def _on_refresh_parking(self):
-        create_all_parking_spots()
+        ParkingService.create_all_parking_spots()
         ctk.CTkLabel(
             self,
             text="Parkplätze erfolgreich angelegt",
