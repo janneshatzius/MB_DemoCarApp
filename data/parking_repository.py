@@ -32,7 +32,6 @@ def get_allocation_map():
     finally:
         conn.close()
 
-    # group into lists of tuples
     alloc_map = {
         fs: list(zip(group["parking_category"], group["quantity"]))
         for fs, group in df.groupby("fs_category")

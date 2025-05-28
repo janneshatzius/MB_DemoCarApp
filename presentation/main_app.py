@@ -2,6 +2,7 @@
 import customtkinter as ctk
 from config import APP_ICON_ICO, WINDOW_TITLE, DEFAULT_HEIGHT, DEFAULT_WIDTH
 
+
 from presentation.screens.start_screen import StartScreen
 from presentation.screens.recommendations_screen import RecommendationsScreen
 from presentation.screens.update_entries_screen import UpdateEntriesScreen
@@ -24,6 +25,7 @@ class MainApp(ctk.CTk):
         # --- window setup ---
         self.title(WINDOW_TITLE)
         self.geometry(f"{DEFAULT_WIDTH}x{DEFAULT_HEIGHT}")
+        self.state('zoomed')
 
 
         self.recs_df = RecommendationService.list_all_recommendations()

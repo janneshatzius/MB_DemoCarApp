@@ -31,11 +31,9 @@ def get_recommendations_by_dealership(dealership_id):
           FROM Recommendation
          WHERE dealership_id = ?
     """
-    # pass a tuple, not a bare int
     cur.execute(sql, (dealership_id,))
     rows = cur.fetchall()
 
-    # map to dicts
     return [
         {
             "recommendation_id":      r[0],
@@ -101,7 +99,6 @@ def insert_recommendations( recommendations):
         try:
             cur.execute(sql, params)
         except Exception as e:
-            # Print everything for debugging
             print("\n--- Failed to insert recommendation ---")
             print("SQL:", sql.strip())
             print("Parameters:", params)
@@ -150,7 +147,6 @@ def move_recommendations_to_past(year: int):
     moved = cur.rowcount
     print(f"[archive] moved {moved} rows to Past_Recommendations for year {year}")
 
-    # 2) Now delete those same rows from Recommendation
     cur.execute(
         "DELETE FROM Recommendation WHERE allocation_year = ?", (year,)
     )

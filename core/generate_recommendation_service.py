@@ -47,7 +47,6 @@ class GenerateRecommendationService:
         past    = to_records(past_df)
         models  = to_records(models_df)
 
-        # map dealer → group_id, gssn_id
         dealer_map = {
             d["dealership_id"]: {
                 "group_id":    d.get("group_id"),
@@ -61,7 +60,7 @@ class GenerateRecommendationService:
             for d in dealers
         }
 
-        # group models by car_type_name
+        
         model_map = {}
         for m in models:
             t = m["car_type_name"].lower()
@@ -70,7 +69,7 @@ class GenerateRecommendationService:
                 "model_name": m["model_name"],
             })
 
-        # build history sets
+        
         past_used = {}
         for r in past:
             past_used.setdefault(r["dealership_id"], set()).add(r["car_model_name"])
@@ -97,7 +96,6 @@ class GenerateRecommendationService:
 
             candidates = model_map.get(ctype, [])
             if not candidates:
-                # no models for that type at all
                 continue
 
             # apply relaxation until we get 1 or more choice

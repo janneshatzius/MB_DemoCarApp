@@ -18,7 +18,6 @@ def fetch_all_types():
     """)
     rows = cur.fetchall()
     conn.close()
-    # each row is a one‐element tuple
     return [r[0] for r in rows]
 
 def fetch_models_by_type(type_name: str) -> list[str]:
@@ -59,14 +58,12 @@ def get_all_car_models():
 def insert_car_model(type_name: str, model_name: str):
     conn = get_connection()
     cur = conn.cursor()
-    # 1) look up the PK in Car_Type
     cur.execute("SELECT car_type_id FROM Car_Type WHERE type_name = ?", (type_name,))
     row = cur.fetchone()
     if not row:
         conn.close()
         raise ValueError(f"Unknown car-type “{type_name}” – please create it first in Car_Type.")
     car_type_id = row[0]
-    # 2) insert into Car_Model (supplying both the FK and the name)
     cur.execute(
         """
         INSERT INTO Car_Model

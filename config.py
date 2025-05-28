@@ -13,8 +13,8 @@ ASSETS_DIR = BASE_DIR / "assets"
 
 DB_PATH = Path(
     os.getenv(
-       "APP_DB_PATH",
-       r"\\"
+        "APP_DB_PATH",
+        r"P:\_Departments\Vans\Steuerung\06_Projekte\zVF\Datenbank_Verteilung\TestfahrzeugeDB.accdb"
     )
 )
 

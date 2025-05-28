@@ -51,7 +51,6 @@ def update_recommendation(rec_id, new_model_id, new_model_name, note):
            [recommendation_source] = ?
      WHERE [recommendation_id]    = ?
     """
-    # pass the source as a parameter, too, just to keep everything uniform
     params = (
         new_model_id,
         new_model_name,
