@@ -23,6 +23,25 @@ class ParkingService:
         existing_counts = get_existing_spot_counts()  # dealer_id → existing_count
         dealers         = get_all_dealerships()       # list of dicts
 
+
+        dealer_records = dealers.to_dict("records")
+
+
+        inactive_ids   = []
+        active_records = []
+
+        for d in dealer_records:
+            did    = d["dealership_id"]
+            status = d["status"]
+            if status is None or str(status).lower() != "active":
+            # anything not explicitly "active" becomes a candidate for deletion
+                inactive_ids.append(did)
+            else:
+                active_records.append(d)
+
+    # First, delete all spots for every inactive dealer
+        delete_spots_for_dealers(inactive_ids)
+
         # 2) figure out which dealers need to be rebuilt
         to_delete = []
         spots      = []
