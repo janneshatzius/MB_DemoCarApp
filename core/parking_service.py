@@ -11,13 +11,12 @@ from data.parking_repository import (
     list_allocation_for_fs,
     insert_allocation,
     update_allocation,
-    delete_allocation,
+    delete_allocation
 )
 
 class ParkingService:
     @staticmethod
     def create_all_parking_spots():
-        # 1) load everything in bulk
         alloc_map       = get_allocation_map()        # fs_value → [(cat_id, qty),…]
         category_map    = get_parking_category_map()  # cat_id → {…}
         existing_counts = get_existing_spot_counts()  # dealer_id → existing_count

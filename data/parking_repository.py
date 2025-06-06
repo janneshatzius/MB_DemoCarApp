@@ -134,7 +134,7 @@ def insert_parking_spots_bulk(spots: list[tuple]):
         conn.close()
 
 
-# — FS_CATEGORY CRUD —
+#FS_CATEGORY
 
 def list_fs_categories() -> list[dict]:
     """
@@ -169,7 +169,6 @@ def add_fs_category(fs: str) -> None:
         conn.close()
 
 
-# — PARKING_CATEGORY list (for editor) —
 
 def list_parking_categories() -> list[dict]:
     """
@@ -189,7 +188,7 @@ def list_parking_categories() -> list[dict]:
         conn.close()
 
 
-# — PARKING_ALLOCATION CRUD —
+# PARKING_ALLOCATION 
 
 def list_allocation_for_fs(fs: str) -> list[tuple[int,int]]:
     """
@@ -204,7 +203,7 @@ def list_allocation_for_fs(fs: str) -> list[tuple[int,int]]:
             " WHERE [fs_category] = ?",
             (fs,)
         )
-        return cur.fetchall()  # list of (int, int)
+        return cur.fetchall()  
     finally:
         conn.close()
 

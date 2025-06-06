@@ -15,7 +15,6 @@ class RecommendationService:
 
     @staticmethod
     def list_models_for_type(car_type_name: str):
-        # returns a list of {"id":…, "name":…}
         return get_car_models_by_type(car_type_name)
 
     @staticmethod

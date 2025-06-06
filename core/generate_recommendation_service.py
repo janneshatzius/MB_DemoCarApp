@@ -1,9 +1,7 @@
 import random
 import pandas as pd
 
-from data.car_repository import (
-    get_all_car_models,
-) 
+from data.car_repository import get_all_car_models
 from data.dealership_repository import get_all_dealerships
 from data.parking_repository import get_all_parking_spots
 from data.generate_recommendation_repository import (

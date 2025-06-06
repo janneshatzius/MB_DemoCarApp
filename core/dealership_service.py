@@ -3,10 +3,8 @@ from data.dealership_repository import (
     update_dealership_status,
     insert_dealership,
     insert_dealership_group,
-    find_group_by_company,
-
-                                        
-                                        )
+    find_group_by_company
+    )
 
 class DealershipService():
 
@@ -44,20 +42,12 @@ class DealershipService():
         status: str = "active",
         note: str = ""
     ) -> None:
-        """
-        Inserts a new dealership into the DB.
-        - fs_value is e.g. "P2" or "V3"
-        - FS (numeric) is derived by stripping the leading letter: P2 -> 2
-        - status and note default to 'active' / ''
-        """
-        # derive numeric FS from the fs_value string
-        # e.g. "P2" -> 2, "V3" -> 3
+        
         try:
             FS = int(fs_value[1:])
         except (ValueError, TypeError):
             raise ValueError(f"Ungültiges FS-Format: {fs_value!r}")
 
-        # call the repository function
         insert_dealership(
             gssn_id=gssn_id,
             dealership_name=name,

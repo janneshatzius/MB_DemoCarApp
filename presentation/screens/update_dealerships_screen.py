@@ -13,19 +13,19 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
         self.controller = controller
         self.configure(fg_color="#A9A9A9")
 
-        # — Layout of this frame: 2 rows, 2 columns —
+        
         self.grid_columnconfigure(0, weight=3)
         self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=0)   # header row
-        self.grid_rowconfigure(1, weight=1)   # content row
+        self.grid_rowconfigure(0, weight=0)   
+        self.grid_rowconfigure(1, weight=1)  
 
-        # === row 0: header ===
+
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.grid(row=0, column=0, columnspan=2,
                     sticky="ew", padx=10, pady=(10,0))
-        header.grid_columnconfigure(0, weight=0)  # home
-        header.grid_columnconfigure(1, weight=1)  # spacer
-        header.grid_columnconfigure(2, weight=0)  # add-agent
+        header.grid_columnconfigure(0, weight=0)  
+        header.grid_columnconfigure(1, weight=1) 
+        header.grid_columnconfigure(2, weight=0)  
 
         # -- Home button --
         home_img = ctk.CTkImage(
@@ -56,21 +56,19 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
 
 
 
-        # -- Add-Agentenstandort button --
+        # Add-Agentenstandort button 
         ctk.CTkButton(
             header,
             text="Agentenstandort hinzufügen",
             command=lambda: controller.show_frame("AddDealershipScreen")
         ).grid(row=0, column=2, sticky="e")
 
-        # === row 1: content ===
-
-        # — Left: dealer table —
+        
         table_frame = ctk.CTkFrame(self, fg_color="#D3D3D3")
         table_frame.grid(row=1, column=0, sticky="nsew",
                          padx=10, pady=10)
 
-        # style the Treeview to match CTk
+        
         style = ttk.Style()
         style.theme_use("default")
         style.configure(
@@ -125,12 +123,12 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
             stretch=False
         )
 
-# 2) configure your real columns by iterating only _col_map
+
         for data_key, pretty in self._col_map.items():
             self.tree.heading(data_key, text=pretty)
             self.tree.column(
                 data_key,
-                width=100,    # or your per-column widths
+                width=100,    
                 minwidth=20,
                 anchor="w",
                 stretch=True
@@ -153,9 +151,9 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
                          padx=10, pady=10)
         self._build_detail_form()
 
-        # === Load & populate ===
+        
         raw = DealershipService.list_all_dealerships()
-        # ensure DataFrame
+        
         if isinstance(raw, pd.DataFrame):
             self._dealers = raw
         else:
@@ -202,12 +200,12 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
 
 
     def populate_tree(self, df: pd.DataFrame):
-    # 1) clear existing rows
+    
         self.tree.delete(*self.tree.get_children())
 
-    # 2) re-insert, with slim non-stretch 'index' column first
+    
         for i, (idx, row) in enumerate(df.iterrows(), start=1):
-            cells = [i]  # this goes into the 'index' column
+            cells = [i] 
 
             for col in self.tree["columns"]:
                 if col == "index":
@@ -217,13 +215,12 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
                 # empty out None
                 if v is None:
                     v = ""
-                # trim .0 from integer-valued floats
                 elif isinstance(v, float) and v.is_integer():
                     v = int(v)
 
                 cells.append(v)
 
-            # use the real DataFrame index as iid if you need it
+            
             self.tree.insert("", "end", iid=idx, values=cells)
 
 
@@ -254,10 +251,10 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
         status    = self.var_status.get()
         note      = self.txt_note.get().strip()
 
-        # persist
+        
         DealershipService.update_dealership(dealer_id, status, note)
 
-        # refresh in-memory & table
+        
         df_idx = self._dealers.index[
             self._dealers["dealership_id"] == dealer_id
         ][0]
@@ -271,14 +268,14 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
         dlg.geometry("320x150")
         dlg.grab_set()
 
-        # label + entry
+        
         ctk.CTkLabel(dlg, text="Suchbegriff:").pack(pady=(10,0))
         var = tk.StringVar()
         entry = ctk.CTkEntry(dlg, textvariable=var)
         entry.pack(pady=5, padx=10, fill="x")
         entry.focus()
 
-        # search action
+        
         def on_search(event=None):
             term = var.get().strip().lower()
             if not term:
@@ -297,7 +294,7 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
                 self.tree.focus(first)
                 self.tree.see(first)
 
-        # clear highlights action
+        
         def on_clear(event=None):
             for iid in self.tree.get_children():
                 self.tree.item(iid, tags=())
