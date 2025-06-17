@@ -96,7 +96,7 @@ class GenerateRecommendationService:
             if not candidates:
                 continue
 
-            # apply relaxation until we get 1 or more choice
+            # apply relaxation until 1 or more choice is found
             for test in (
                 lambda m: m["model_name"] not in history_set
                           and m["model_name"] not in dealer_set
@@ -131,6 +131,8 @@ class GenerateRecommendationService:
                 "locality":              locality,
                 "dealership_name":       dealership_name,
                 "note":                  "",
+                "first_allocation":      "",
+                "second_allocation":     "",
                 "gssn_company": gssn_company
             })
 

@@ -2,9 +2,7 @@ import pandas as pd
 from data.dbconnect import get_connection
 
 def get_all_recommendations_df():
-    """
-    Returns a DataFrame of all recommendations, including each spots car_type.
-    """
+    
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -20,8 +18,9 @@ def get_all_recommendations_df():
                 parking_type,               
                 car_model_name,
                 allocation_year,
-                recommendation_source,
-                note
+                note,
+                first_allocation,
+                second_allocation
             FROM Recommendation
             ORDER BY gssn_id
         """,)
@@ -40,7 +39,7 @@ def get_all_recommendations_df():
 
 
 
-def update_recommendation(rec_id, new_model_id, new_model_name, note):
+def update_recommendation(rec_id, new_model_id, new_model_name, note, f_allocation, s_allocation):
     conn = get_connection()
     cur = conn.cursor()
     sql = """
@@ -48,6 +47,8 @@ def update_recommendation(rec_id, new_model_id, new_model_name, note):
        SET [car_model]             = ?,
            [car_model_name]        = ?,
            [note]                  = ?,
+           [first_allocation]       = ?,
+           [second_allocation]       = ?,
            [recommendation_source] = ?
      WHERE [recommendation_id]    = ?
     """
@@ -55,6 +56,8 @@ def update_recommendation(rec_id, new_model_id, new_model_name, note):
         new_model_id,
         new_model_name,
         note,
+        f_allocation,
+        s_allocation,
         2,
         rec_id
     )

@@ -20,7 +20,7 @@ class AddDealershipScreen(ctk.CTkFrame):
         header.pack(fill="x", pady=10, padx=10)
         
         
-        # spacer
+        
         header.pack_propagate(False)
         header.configure(height=40)
         # home
@@ -115,7 +115,6 @@ class AddDealershipScreen(ctk.CTkFrame):
         ).grid(row=row, column=0, columnspan=2, pady=(20,0))
 
     def _on_save(self):
-        # gather inputs
         gssn    = self.entry_gssn.get().strip()
         name    = self.entry_name.get().strip()
         hb      = self.entry_hb.get().strip()
@@ -125,12 +124,12 @@ class AddDealershipScreen(ctk.CTkFrame):
         func    = self.var_func.get()
         company = self.entry_company.get().strip()
 
-        # basic validation
+        # validation
         if not all([gssn, name, hb, vfnr, loc, company]):
             messagebox.showerror("Fehler", "Bitte alle Felder ausfüllen.")
             return
 
-        # 1) find or create group
+        # find or create group
         group = DealershipService.get_group_by_company(company)
         if group:
             group_id = group["DG_ID"]
@@ -141,7 +140,7 @@ class AddDealershipScreen(ctk.CTkFrame):
                 return
             group_id = DealershipService.create_group(company, vfnrhb)["DG_ID"]
 
-        # 2) create the dealership (status='active', note='')
+       
         try:
             DealershipService.create_dealership(
                 gssn_id=gssn,

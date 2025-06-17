@@ -17,10 +17,10 @@ from data.parking_repository import (
 class ParkingService:
     @staticmethod
     def create_all_parking_spots():
-        alloc_map       = get_allocation_map()        # fs_value → [(cat_id, qty),…]
-        category_map    = get_parking_category_map()  # cat_id → {…}
-        existing_counts = get_existing_spot_counts()  # dealer_id → existing_count
-        dealers         = get_all_dealerships()       # list of dicts
+        alloc_map       = get_allocation_map()        
+        category_map    = get_parking_category_map()  
+        existing_counts = get_existing_spot_counts()  
+        dealers         = get_all_dealerships()       
 
 
         dealer_records = dealers.to_dict("records")
@@ -33,15 +33,14 @@ class ParkingService:
             did    = d["dealership_id"]
             status = d["status"]
             if status is None or str(status).lower() != "active":
-            # anything not explicitly "active" becomes a candidate for deletion
                 inactive_ids.append(did)
             else:
                 active_records.append(d)
 
-    # First, delete all spots for every inactive dealer
+    
         delete_spots_for_dealers(inactive_ids)
 
-        # 2) figure out which dealers need to be rebuilt
+
         to_delete = []
         spots      = []
 
@@ -56,7 +55,7 @@ class ParkingService:
             if existing != desired_total:
                 to_delete.append(did)
 
-                # build exactly desired_total spots
+                
                 for cat_id, qty in alloc_map.get(fs_val, []):
                     mapping = category_map.get(cat_id)
                     if not mapping:
@@ -69,7 +68,6 @@ class ParkingService:
                             gssn
                         ))
 
-        # 3) do one delete + one bulk insert
         delete_spots_for_dealers(to_delete)
         insert_parking_spots_bulk(spots)
 
@@ -79,7 +77,6 @@ class ParkingService:
 
     @staticmethod
     def add_fs_category(fs: str) -> None:
-        # you could add validation here (e.g. no duplicates)
         existing = [r["fs_category"] for r in list_fs_categories()]
         if fs in existing:
             raise ValueError(f"FS-Kategorie {fs} existiert bereits.")
@@ -106,27 +103,24 @@ class ParkingService:
         If quantity > 0 and row exists     → UPDATE
         If quantity == 0 and row exists    → DELETE
         """
-        # fetch existing allocations
-        existing = dict(list_allocation_for_fs(fs))  # {cat_id: qty}
+        
+        existing = dict(list_allocation_for_fs(fs))  
 
-        # process each entry
+        
         for cat_id, qty in entries:
             old_qty = existing.get(cat_id)
 
             if old_qty is None:
-                # no row exists
                 if qty > 0:
                     insert_allocation(fs, cat_id, qty)
             else:
-                # row already exists
                 if qty > 0:
                     if qty != old_qty:
                         update_allocation(fs, cat_id, qty)
                 else:
-                    # qty == 0 → delete row
                     delete_allocation(fs, cat_id)
 
-        # any existing categories not in entries should be removed
+        
         entry_ids = {cat_id for cat_id, _ in entries}
         for cat_id in existing:
             if cat_id not in entry_ids:

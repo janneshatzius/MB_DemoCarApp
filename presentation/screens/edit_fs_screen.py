@@ -13,7 +13,7 @@ class EditFSScreen(ctk.CTkFrame):
         self.controller = controller
         self.configure(fg_color="#A9A9A9")
 
-        # === Home + Back buttons ===
+        # Home + Back buttons 
         for name, x, target in (("Home", 10, "StartScreen"),
                                ("Back", 50, "UpdateEntriesScreen")):
             img = ICON_HOME if name=="Home" else ICON_BACKPAGE
@@ -30,13 +30,13 @@ class EditFSScreen(ctk.CTkFrame):
             )
             btn.place(x=x, y=10)
 
-        # === Main container, centered ===
+        
         container = ctk.CTkFrame(self, fg_color="transparent")
-        container.pack(expand=True)  # pack into center
+        container.pack(expand=True)
 
-        # — two panels side by side —
-        panel_width = 400  # increased from 350
-        panel_height = 500  # increased from 400
+        
+        panel_width = 400  
+        panel_height = 500
         edit_panel = ctk.CTkFrame(container, fg_color="#D3D3D3", width=panel_width, height=panel_height)
         add_panel  = ctk.CTkFrame(container, fg_color="#D3D3D3", width=panel_width, height=panel_height)
         edit_panel.pack_propagate(False)
@@ -44,11 +44,11 @@ class EditFSScreen(ctk.CTkFrame):
         edit_panel.pack(side="left", padx=20, pady=30)
         add_panel.pack( side="left", padx=20, pady=30)
 
-        # === Edit FS-Kategorie form ===
+
         ctk.CTkLabel(edit_panel, text="FS-Kategorie bearbeiten",
                      font=("Arial", 16, "bold")).pack(pady=(10,10))
 
-        # dropdown
+        
         self.fs_var = tk.StringVar()
         self.fs_menu = ctk.CTkOptionMenu(edit_panel,
                                          variable=self.fs_var,
@@ -57,7 +57,7 @@ class EditFSScreen(ctk.CTkFrame):
         ctk.CTkLabel(edit_panel, text="FS-Kategorie wählen:").pack(anchor="w", padx=10)
         self.fs_menu.pack(fill="x", padx=10, pady=(0,10))
 
-        # parking-category rows
+        
         self.parking_cats = ParkingService.list_parking_categories()
         self.qty_vars     = {}
         vcmd = (self.register(self._validate_int), '%P')
@@ -71,25 +71,25 @@ class EditFSScreen(ctk.CTkFrame):
             ctk.CTkEntry(row, width=50, textvariable=var, validate='key', validatecommand=vcmd)\
                .pack(side="right")
 
-        # add a spacer to push the button down
+        
         ctk.CTkLabel(edit_panel, text="").pack(pady=(0, 10), expand=True)
 
-        # save button
+    
         ctk.CTkButton(edit_panel, text="Speichern", command=self._on_save, width=180, height=30, font=("Arial", 14))\
            .pack(pady=(0,20), side="bottom")
 
-        # === Add-new FS-Kategorie form (same rows!) ===
+        
         ctk.CTkLabel(add_panel, text="Neue FS-Kategorie hinzufügen",
                      font=("Arial", 16, "bold")).pack(pady=(10,10))
 
-        # new-FS entry
+        
         self.new_fs_var = tk.StringVar()
         ctk.CTkEntry(add_panel,
                      placeholder_text="z.B. V7",
                      textvariable=self.new_fs_var)\
            .pack(fill="x", padx=10, pady=(0,10))
 
-        # reuse same parking-category qty rows
+        
         self.new_qty_vars = {}
         vcmd_new = (self.register(self._validate_int), '%P')
         for cat in self.parking_cats:
@@ -102,14 +102,14 @@ class EditFSScreen(ctk.CTkFrame):
             ctk.CTkEntry(row, width=50, textvariable=var, validate='key', validatecommand=vcmd_new)\
                .pack(side="right")
 
-        # add a spacer to push the button down
+        
         ctk.CTkLabel(add_panel, text="").pack(pady=(0, 10), expand=True)
 
-        # add button
+    
         ctk.CTkButton(add_panel, text="Hinzufügen", command=self._on_add_fs, width=180, height=30, font=("Arial", 14))\
            .pack(pady=(0,20), side="bottom")
 
-        # load dropdown options
+        
         self._reload_fs_menu()
 
 
@@ -149,14 +149,14 @@ class EditFSScreen(ctk.CTkFrame):
         if not newfs:
             return
 
-        # first add the FS category itself
+    
         try:
             ParkingService.add_fs_category(newfs)
         except Exception as e:
             messagebox.showerror("Fehler", str(e))
             return
 
-        # then collect its quantities and save
+        
         entries = []
         for cat_id, var in self.new_qty_vars.items():
             raw = var.get().strip()
@@ -169,7 +169,7 @@ class EditFSScreen(ctk.CTkFrame):
             messagebox.showerror("Fehler beim Speichern", str(e))
             return
 
-        # clear form & refresh dropdown
+        
         self.new_fs_var.set("")
         for var in self.new_qty_vars.values():
             var.set(0)

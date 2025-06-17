@@ -27,7 +27,7 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
         header.grid_columnconfigure(1, weight=1) 
         header.grid_columnconfigure(2, weight=0)  
 
-        # -- Home button --
+        #  Home button 
         home_img = ctk.CTkImage(
             light_image=Image.open(ICON_HOME),
             dark_image=Image.open(ICON_HOME),
@@ -40,7 +40,7 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
             command=lambda: controller.show_frame("StartScreen")
         ).grid(row=0, column=0, sticky="w")
 
-         # === Backpage ===
+         #  Backpage 
         back_img = ctk.CTkImage(
             light_image=Image.open(ICON_BACKPAGE),
             dark_image=Image.open(ICON_BACKPAGE),
@@ -56,7 +56,7 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
 
 
 
-        # Add-Agentenstandort button 
+        
         ctk.CTkButton(
             header,
             text="Agentenstandort hinzufügen",
@@ -145,7 +145,7 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
 
         self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
 
-        # — Right: detail form —
+       
         self.detail = ctk.CTkFrame(self, fg_color="#D3D3D3", width=200)
         self.detail.grid(row=1, column=1, sticky="nsew",
                          padx=10, pady=10)
@@ -212,7 +212,7 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
                     continue
 
                 v = row.get(col)
-                # empty out None
+               
                 if v is None:
                     v = ""
                 elif isinstance(v, float) and v.is_integer():
@@ -300,21 +300,21 @@ class UpdateDealershipsScreen(ctk.CTkFrame):
                 self.tree.item(iid, tags=())
             self.tree.selection_remove(self.tree.selection())
 
-        # buttons frame
+        
         btn_frame = ctk.CTkFrame(dlg, fg_color="transparent")
         btn_frame.pack(pady=(10,0), padx=10, fill="x")
 
-        # Suchen button
+       
         ctk.CTkButton(
             btn_frame, text="Suchen", command=on_search
         ).pack(side="left", expand=True, fill="x", padx=(0,5))
 
-        # Markierungen löschen button
+       
         ctk.CTkButton(
             btn_frame, text="Markierungen löschen", command=on_clear
         ).pack(side="left", expand=True, fill="x", padx=(5,0))
 
-        # bind Enter to search
+    
         entry.bind("<Return>", on_search)
 
 

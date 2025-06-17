@@ -5,10 +5,7 @@ import pandas as pd
 
 
 def fetch_all_types():
-    """
-    Returns a simple list of all distinct car_type_name values,
-    ordered alphabetically.
-    """
+    
     conn = get_connection()
     cur  = conn.cursor()
     cur.execute("""
@@ -33,9 +30,7 @@ def fetch_models_by_type(type_name: str) -> list[str]:
 
 
 def get_car_models_by_type(car_type_name):
-    """
-    Returns all models (id + name) for a given car_type.
-    """
+  
     conn = get_connection()
     cur  = conn.cursor()
     try:

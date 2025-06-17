@@ -30,9 +30,6 @@ def get_all_dealerships():
     
 
 def update_dealership_status(dealership_id: int, status: str, note: str) -> None:
-    """
-    Updates the status and note for a given dealership_id.
-    """
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -51,10 +48,6 @@ def update_dealership_status(dealership_id: int, status: str, note: str) -> None
 
 
 def find_group_by_company(company: str) -> dict | None:
-    """
-    Looks up a dealership group by its gssn_company name.
-    Returns a dict with keys 'DG_ID','gssn_company','vfnrhb', or None if not found.
-    """
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -76,10 +69,7 @@ def find_group_by_company(company: str) -> dict | None:
 
 
 def insert_dealership_group(company: str, vfnrhb: str) -> dict:
-    """
-    Inserts a new row into DealershipGroup and returns
-    a dict with the new 'DG_ID', 'gssn_company', and 'vfnrhb'.
-    """
+    
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -115,9 +105,7 @@ def insert_dealership(
     status: str,
     note: str
 ) -> None:
-    """
-    Inserts a new dealership row with all required fields.
-    """
+   
     conn = get_connection()
     try:
         cur = conn.cursor()

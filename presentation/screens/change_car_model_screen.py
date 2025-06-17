@@ -10,9 +10,9 @@ class ChangeCarModelScreen(ctk.CTkFrame):
         self.controller = controller
         self.configure(fg_color="#A9A9A9")
 
-        # — first build ALL of your widgets… — 
+        
 
-        # === Home icon ===
+        #Home icon 
         try:
             home_img = ctk.CTkImage(light_image=Image.open(ICON_HOME), dark_image=Image.open(ICON_HOME),size=(25,25))
 
@@ -23,7 +23,7 @@ class ChangeCarModelScreen(ctk.CTkFrame):
             print("Home icon load error:", e)
 
 
-            # === Backpage ===
+            # Backpage 
         try:
             backpage_img = ctk.CTkImage(light_image=Image.open(ICON_BACKPAGE), dark_image=Image.open(ICON_BACKPAGE), size=(25,25))
 
@@ -36,7 +36,6 @@ class ChangeCarModelScreen(ctk.CTkFrame):
         # ADD MODEL section
         central_frame = ctk.CTkFrame(self, fg_color="transparent")
         central_frame.place(relx=0.5, rely=0.5, anchor="center")
-        # ADD MODEL section (now child of central_frame)
         add_frame = ctk.CTkFrame(central_frame, fg_color="transparent")
         add_frame.pack(pady=(0,20))
         ctk.CTkLabel(add_frame, text="Neues Modell hinzufügen").pack()
@@ -48,7 +47,7 @@ class ChangeCarModelScreen(ctk.CTkFrame):
             font=("Arial", 14)
         )
         self.status_label.place(relx=0.5, rely=0.9, anchor="center")
-        self.status_label.configure(text="")  # Clear initial text
+        self.status_label.configure(text="")  
 
 
 
@@ -56,7 +55,7 @@ class ChangeCarModelScreen(ctk.CTkFrame):
         self.add_type_menu = ctk.CTkOptionMenu(
             add_frame,
             variable=self.add_type_var,
-            values=[],                    # empty for now
+            values=[],                   
             command=self._on_add_type_selected
         )
         self.add_type_menu.pack(pady=5)
@@ -77,7 +76,7 @@ class ChangeCarModelScreen(ctk.CTkFrame):
         self.rem_type_menu = ctk.CTkOptionMenu(
             rem_frame,
             variable=self.rem_type_var,
-            values=[],                    # empty for now
+            values=[],                   
             command=self._on_rem_type_selected
         )
         self.rem_type_menu.pack(pady=5)
@@ -96,20 +95,17 @@ class ChangeCarModelScreen(ctk.CTkFrame):
 
         
 
-
-        # — now that the OptionMenus exist, load your types once —
         self._all_types = CarModelService.get_all_types()
 
-        # populate both dropdowns
+        
         self.add_type_menu.configure(values=self._all_types)
         self.rem_type_menu.configure(values=self._all_types)
 
-        # pick a sensible default
+        
         if self._all_types:
             default = self._all_types[0]
             self.add_type_var.set(default)
             self.rem_type_var.set(default)
-            # and load the remove‐side models
             self._on_rem_type_selected(default)
 
 

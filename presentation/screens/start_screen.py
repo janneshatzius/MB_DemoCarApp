@@ -13,12 +13,12 @@ class StartScreen(ctk.CTkFrame):
         self.controller = controller
         self.configure(fg_color="#A9A9A9")
 
-        # Grid layout for main container
+       
         self.grid_rowconfigure((0, 2), weight=1)  
         self.grid_rowconfigure(1, weight=0)       
         self.grid_columnconfigure(0, weight=1)
 
-        # Mercedes-Benz Logo
+        # Logo
         try:
             mercedes_logo = ctk.CTkImage(light_image=Image.open(ICON_MERCEDES), dark_image=Image.open(ICON_MERCEDES),size=(100,100))
             logo_label = ctk.CTkLabel(self, image=mercedes_logo, text="")

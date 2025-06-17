@@ -1,9 +1,9 @@
 @echo off
-REM — clean previous builds
+REM
 rmdir /s /q dist build
 del /q *.spec
 
-REM — build the GUI app in one-folder mode
+REM 
 pyinstaller ^
   --noconfirm ^
   --clean ^

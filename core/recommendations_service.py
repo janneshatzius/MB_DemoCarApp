@@ -18,10 +18,12 @@ class RecommendationService:
         return get_car_models_by_type(car_type_name)
 
     @staticmethod
-    def save_changes(rec_id: int, new_model_id: int, new_model_name: str, note: str):
+    def save_changes(rec_id: int, new_model_id: int, new_model_name: str, note: str, f_allocation: str, s_allocation: str):
             update_recommendation(
                                   rec_id,
                                   new_model_id,
                                   new_model_name,
-                                  note)
+                                  note,
+                                  f_allocation,
+                                  s_allocation)
         

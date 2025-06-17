@@ -13,7 +13,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
         self.grid_rowconfigure(1, weight=0)
         self.grid_columnconfigure(0, weight=1)
 
-        # === Home icon ===
+        # Home icon 
         try:
             home_img = ctk.CTkImage(light_image=Image.open(ICON_HOME), dark_image=Image.open(ICON_HOME),size=(25,25))
 
@@ -24,7 +24,7 @@ class UpdateEntriesScreen(ctk.CTkFrame):
             print("Home icon load error:", e)
 
 
-        # === Button group ===
+        # Button group 
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
         button_frame.grid(row=1, column=0)
         button_frame.grid_rowconfigure((0, 1, 2, 3), pad=15)

@@ -5,9 +5,7 @@ from data.dbconnect import get_connection
 
 
 def get_past_recommendations(years):
-    """
-    years: list of two ints, e.g. [2023, 2024]
-    """
+    
     conn = get_connection()
     placeholders = ",".join("?" for _ in years)
     sql = f"SELECT * FROM Past_Recommendations WHERE allocation_year IN ({placeholders})"
@@ -27,7 +25,9 @@ def get_recommendations_by_dealership(dealership_id):
             car_model,
             car_model_name,
             recommendation_source,
-            note
+            note,
+            first_allocation,
+            second_allocation
           FROM Recommendation
          WHERE dealership_id = ?
     """
@@ -43,6 +43,8 @@ def get_recommendations_by_dealership(dealership_id):
             "car_model_name":         r[4],
             "recommendation_source":  r[5],
             "note":                   r[6],
+            "first_allocation":       r[7],
+            "second_allocation":      r[8],
         }
         for r in rows
     ]
@@ -50,14 +52,10 @@ def get_recommendations_by_dealership(dealership_id):
 
 
 
-def insert_recommendations( recommendations):
+def insert_recommendations(recommendations):
     conn = get_connection()
     cur = conn.cursor()
-    """
-    recommendations: list of dicts with keys
-      dealership_id, gssn_id, parkingspot_id, car_model,
-      recommendation_source, allocation_year, car_model_name
-    """
+    
     sql = """
         INSERT INTO Recommendation
     ([dealership_id],
@@ -73,8 +71,10 @@ def insert_recommendations( recommendations):
      [parking_spot],
      [recommendation_source],
      [allocation_year],
-     [note])
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     [note],
+     [first_allocation],
+     [second_allocation])
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
     """
     
@@ -94,7 +94,9 @@ def insert_recommendations( recommendations):
             rec["parking_spot"],
             rec["recommendation_source"],
             rec["allocation_year"],      
-            rec["note"]
+            rec["note"],
+            rec["first_allocation"],
+            rec["second_allocation"]
         )
         try:
             cur.execute(sql, params)
@@ -121,37 +123,53 @@ def delete_recommendations_for_year(year: int):
     conn.commit()
 
 def move_recommendations_to_past(year: int):
-    """
-    Copy all Recommendation rows for a given year into Past_Recommendations
-    (dealership_id, gssn_id, allocation_year, car_model_name) and then delete them.
-    """
+    
     conn = get_connection()
     cur = conn.cursor()
 
     sql_insert = """
-      INSERT INTO Past_Recommendations
-        ( dealership_id
-        , gssn_id
-        , allocation_year
-        , car_model_name
-        )
-      SELECT
-        dealership_id
-      , gssn_id
-      , allocation_year
-      , car_model_name
-      FROM Recommendation
-      WHERE allocation_year = ?
-    """
+INSERT INTO [Past_Recommendations] (
+    [gssn_id],
+    [allocation_year],
+    [car_model_name],
+    [dealership_id],
+    [gssn_company],
+    [HB],
+    [VFNR],
+    [dealership_name],
+    [locality],
+    [parking_type],
+    [first_allocation],
+    [second_allocation],
+    [note]
+)
+SELECT
+    [gssn_id],
+    [allocation_year],
+    [car_model_name],         
+    [dealership_id],
+    [gssn_company],
+    [HB],
+    [VFNR],
+    [dealership_name],
+    [locality],
+    [parking_type],
+    [first_allocation],
+    [second_allocation],
+    [note]
+  FROM [Recommendation]
+ WHERE [allocation_year] = ?
+"""
+
     cur.execute(sql_insert, (year,))
     moved = cur.rowcount
-    print(f"[archive] moved {moved} rows to Past_Recommendations for year {year}")
+    
 
     cur.execute(
         "DELETE FROM Recommendation WHERE allocation_year = ?", (year,)
     )
     deleted = cur.rowcount
-    print(f"[archive] deleted {deleted} rows from Recommendation for year {year}")
+    
 
     conn.commit()
 

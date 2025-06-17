@@ -5,9 +5,7 @@ from data.dbconnect import get_connection
 
 
 def get_all_parking_spots():
-    """
-    Returns a DataFrame of every row in Parking_Spot.
-    """
+  
     conn = get_connection()
     try:
         df = pd.read_sql_query("SELECT * FROM [Parking_Spot]", conn)
@@ -18,10 +16,7 @@ def get_all_parking_spots():
         
 
 def get_allocation_map():
-    """
-    Returns a dict:
-      fs_category_value → [(parking_category_id, quantity), …]
-    """
+  
     conn = get_connection()
     try:
         df = pd.read_sql_query(
@@ -40,10 +35,7 @@ def get_allocation_map():
 
 
 def get_parking_category_map():
-    """
-    Returns a dict:
-      parking_category_id → {car_type_id, car_type}
-    """
+   
     conn = get_connection()
     try:
         df_pc = pd.read_sql_query(
@@ -72,10 +64,7 @@ def get_parking_category_map():
 
 
 def get_existing_spot_counts():
-    """
-    Returns dict:
-      dealership_id → count_of_parking_spots
-    """
+    
     conn = get_connection()
     try:
         df = pd.read_sql_query(
@@ -91,9 +80,7 @@ def get_existing_spot_counts():
 
 
 def delete_spots_for_dealers(dealer_ids: list[int]):
-    """
-    One DELETE statement for all out-of-sync dealers.
-    """
+   
     if not dealer_ids:
         return
 
@@ -113,10 +100,7 @@ def delete_spots_for_dealers(dealer_ids: list[int]):
 
 
 def insert_parking_spots_bulk(spots: list[tuple]):
-    """
-    One executemany for all new spots:
-      spots = [(dealer_id, car_type, car_type_id, gssn_id), …]
-    """
+   
     if not spots:
         return
 
@@ -137,9 +121,7 @@ def insert_parking_spots_bulk(spots: list[tuple]):
 #FS_CATEGORY
 
 def list_fs_categories() -> list[dict]:
-    """
-    Returns a list of existing FS categories, each as {"fs_category": "V2"}.
-    """
+   
     conn = get_connection()
     try:
         df = pd.read_sql_query(
@@ -154,9 +136,7 @@ def list_fs_categories() -> list[dict]:
 
 
 def add_fs_category(fs: str) -> None:
-    """
-    Inserts a new FS category.
-    """
+   
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -171,10 +151,7 @@ def add_fs_category(fs: str) -> None:
 
 
 def list_parking_categories() -> list[dict]:
-    """
-    Returns a list of all parking categories:
-      [{"parkingcategory_id": 1, "category_name": "Private"}, …]
-    """
+   
     conn = get_connection()
     try:
         df = pd.read_sql_query(
@@ -191,9 +168,7 @@ def list_parking_categories() -> list[dict]:
 # PARKING_ALLOCATION 
 
 def list_allocation_for_fs(fs: str) -> list[tuple[int,int]]:
-    """
-    Returns a list of (parking_category_id, quantity) for this fs_category.
-    """
+   
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -208,9 +183,7 @@ def list_allocation_for_fs(fs: str) -> list[tuple[int,int]]:
         conn.close()
 
 def insert_allocation(fs: str, parking_cat: int, qty: int) -> None:
-    """
-    Inserts a new row into Parking_Allocation.
-    """
+   
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -225,9 +198,7 @@ def insert_allocation(fs: str, parking_cat: int, qty: int) -> None:
         conn.close()
 
 def update_allocation(fs: str, parking_cat: int, qty: int) -> None:
-    """
-    Updates the quantity for an existing Parking_Allocation row.
-    """
+   
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -242,9 +213,7 @@ def update_allocation(fs: str, parking_cat: int, qty: int) -> None:
         conn.close()
 
 def delete_allocation(fs: str, parking_cat: int) -> None:
-    """
-    Deletes a specific Parking_Allocation row.
-    """
+
     conn = get_connection()
     try:
         cur = conn.cursor()
