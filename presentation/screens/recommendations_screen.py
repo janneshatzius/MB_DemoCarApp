@@ -356,7 +356,7 @@ class RecommendationsScreen(ctk.CTkFrame):
         ][0]
         self._all_recs.at[idx, 'car_model_name']        = chosen_name
         self._all_recs.at[idx, 'note']                  = note
-        self._all_recs.at[idx, 'recommendation_source']= RecommendationService.MANUAL_SOURCE
+        self._all_recs.at[idx, 'recommendation_source'] = RecommendationService.MANUAL_SOURCE
         self._all_recs.at[idx, 'first_allocation'] = f_allocation
         self._all_recs.at[idx, 'second_allocation'] = s_allocation
 

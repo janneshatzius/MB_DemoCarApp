@@ -91,29 +91,28 @@ def fake_env(monkeypatch):
 
 
 def test_generate_recommendations_with_new_dummy(fake_env):
-    # Generate for 2025
+    
     count = GenerateRecommendationService.generate_recommendations_for_year(2025)
 
-    # Only Private spots get recommendations (2 spots) -> count=2
+    
     assert count == 2
     recs = fake_env
     assert len(recs) == 2
 
-    # Dealer1: one Private spot -> picks V-Klasse (first candidate, OldModel not in models)
     d1 = [r for r in recs if r["dealership_id"] == 1]
     assert len(d1) == 1
     assert d1[0]["car_model_name"] == "V-Klasse"
     assert d1[0]["recommendation_source"] == GenerateRecommendationService.AUTO_SOURCE
     assert d1[0]["allocation_year"] == 2025
 
-    # Dealer2: one Private spot -> group_set contains V-Klasse, so picks T-Klasee
+    
     d2 = [r for r in recs if r["dealership_id"] == 2]
     assert len(d2) == 1
     assert d2[0]["car_model_name"] == "T-Klasse"
 
 
 def test_relaxation_when_all_in_history(fake_env, monkeypatch):
-    # Now pretend dealer1 has used *both* Private models in the past
+    
     monkeypatch.setattr(
         "data.generate_recommendation_repository.get_past_recommendations",
         lambda years: pd.DataFrame([
@@ -124,16 +123,16 @@ def test_relaxation_when_all_in_history(fake_env, monkeypatch):
     fake_env.clear()
 
     count = GenerateRecommendationService.generate_recommendations_for_year(2026)
-    # Still only Private spots => 2 recommendations
+    
     assert count == 2
 
     recs = fake_env
-    # Dealer1: Private spot chooses from both since history excluded, random picks first -> V-Klasse
+    
     d1 = [r for r in recs if r["dealership_id"] == 1]
     assert len(d1) == 1
     assert d1[0]["car_model_name"] == "V-Klasse"
 
-    # Dealer2: now group_set includes V-Klasse, so picks T-Klasee
+    
     d2 = [r for r in recs if r["dealership_id"] == 2]
     assert len(d2) == 1
     assert d2[0]["car_model_name"] == "T-Klasse"

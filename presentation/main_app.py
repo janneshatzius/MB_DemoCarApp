@@ -10,6 +10,7 @@ from presentation.screens.change_car_model_screen import ChangeCarModelScreen
 from presentation.screens.update_dealerships_screen import UpdateDealershipsScreen
 from presentation.screens.add_dealership_screen import AddDealershipScreen
 from presentation.screens.edit_fs_screen import EditFSScreen
+from presentation.screens.past_recommendations_screen import PastRecommendationsScreen
 
 
 from core.recommendations_service import RecommendationService
@@ -52,7 +53,8 @@ class MainApp(ctk.CTk):
             ChangeCarModelScreen,
             UpdateDealershipsScreen,
             AddDealershipScreen,
-            EditFSScreen
+            EditFSScreen,
+            PastRecommendationsScreen
             
 
             
@@ -74,6 +76,8 @@ class MainApp(ctk.CTk):
             print(f"[MainApp] no such page: {page_name}")
             return
         frame.tkraise()
+        if hasattr(frame, "reload_data"):
+            frame.reload_data()
         self.current_screen = frame
 
     def open_find(self, event=None):

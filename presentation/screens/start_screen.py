@@ -42,9 +42,10 @@ class StartScreen(ctk.CTkFrame):
         }
 
         buttons = [
-            ("Datenbankeinträge einsehen", lambda: controller.show_frame("RecommendationsScreen")),
-            ("Datenbankeinträge erneuern", lambda: controller.show_frame("UpdateEntriesScreen")),
+            ("Aktuelle Planung", lambda: controller.show_frame("RecommendationsScreen")),
+            ("Optionen", lambda: controller.show_frame("UpdateEntriesScreen")),
             ("Jahresplanung erstellen",      self._on_create_recommendations),
+            ("Alte Jahresplanungen", lambda: controller.show_frame("PastRecommendationsScreen")),
         ]
 
         for i, (text, command) in enumerate(buttons):
