@@ -15,7 +15,7 @@ class AddDealershipScreen(ctk.CTkFrame):
         self.controller = controller
         self.configure(fg_color="#A9A9A9")
 
-        # === Header with Back + Home ===
+        
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.pack(fill="x", pady=10, padx=10)
         
@@ -44,7 +44,7 @@ class AddDealershipScreen(ctk.CTkFrame):
             command=lambda: controller.show_frame("UpdateDealershipsScreen")
         ).pack(side="left")
 
-        # === Form container ===
+        
         form = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         form.place(relx=0.5, rely=0.5, anchor="center")
 
@@ -57,37 +57,37 @@ class AddDealershipScreen(ctk.CTkFrame):
             .grid(row=row, column=0, columnspan=2, pady=(0,20))
         row += 1
 
-        # GSSN ID
+        
         ctk.CTkLabel(form, text="GSSN ID:").grid(row=row, column=0, sticky="w")
         self.entry_gssn = ctk.CTkEntry(form)
         labeled(self.entry_gssn, row=row, column=1)
         row += 1
 
-        # Dealership Name
+        
         ctk.CTkLabel(form, text="Name:").grid(row=row, column=0, sticky="w")
         self.entry_name = ctk.CTkEntry(form)
         labeled(self.entry_name, row=row, column=1)
         row += 1
 
-        # HB
+        
         ctk.CTkLabel(form, text="HB:").grid(row=row, column=0, sticky="w")
         self.entry_hb = ctk.CTkEntry(form)
         labeled(self.entry_hb, row=row, column=1)
         row += 1
 
-        # VFNR
+        
         ctk.CTkLabel(form, text="VFNR:").grid(row=row, column=0, sticky="w")
         self.entry_vfnr = ctk.CTkEntry(form)
         labeled(self.entry_vfnr, row=row, column=1)
         row += 1
 
-        # Locality
+        
         ctk.CTkLabel(form, text="Ortschaft:").grid(row=row, column=0, sticky="w")
         self.entry_locality = ctk.CTkEntry(form)
         labeled(self.entry_locality, row=row, column=1)
         row += 1
 
-        # FS_Value dropdown
+        
         ctk.CTkLabel(form, text="FS-Kategorie:").grid(row=row, column=0, sticky="w")
         fs_values = ["P2","P3","P4","P5","V2","V3","V4","V5"]
         self.var_fs = tk.StringVar(value=fs_values[0])
@@ -95,7 +95,7 @@ class AddDealershipScreen(ctk.CTkFrame):
         labeled(self.opt_fs, row=row, column=1)
         row += 1
 
-        # Function dropdown
+        
         ctk.CTkLabel(form, text="Funktion:").grid(row=row, column=0, sticky="w")
         funcs = ["P","PT","V"]
         self.var_func = tk.StringVar(value=funcs[0])
@@ -103,13 +103,13 @@ class AddDealershipScreen(ctk.CTkFrame):
         labeled(self.opt_func, row=row, column=1)
         row += 1
 
-        # GSSN Company
+        
         ctk.CTkLabel(form, text="GSSN Company:").grid(row=row, column=0, sticky="w")
         self.entry_company = ctk.CTkEntry(form)
         labeled(self.entry_company, row=row, column=1)
         row += 1
 
-        # Save button
+       
         ctk.CTkButton(
             form, text="Speichern", command=self._on_save
         ).grid(row=row, column=0, columnspan=2, pady=(20,0))
@@ -124,17 +124,17 @@ class AddDealershipScreen(ctk.CTkFrame):
         func    = self.var_func.get()
         company = self.entry_company.get().strip()
 
-        # validation
+        
         if not all([gssn, name, hb, vfnr, loc, company]):
             messagebox.showerror("Fehler", "Bitte alle Felder ausfüllen.")
             return
 
-        # find or create group
+        
         group = DealershipService.get_group_by_company(company)
         if group:
             group_id = group["DG_ID"]
         else:
-            # ask for VFNRHB for new group
+            
             vfnrhb = self._prompt_new_group(company)
             if not vfnrhb:
                 return
@@ -167,7 +167,6 @@ class AddDealershipScreen(ctk.CTkFrame):
         
 
     def _prompt_new_group(self, company) -> str:
-        """Popup to enter a new VFNRHB for a brand-new group."""
         popup = ctk.CTkToplevel(self)
         popup.title("Neue Händlergruppe")
         popup.geometry("300x150")
